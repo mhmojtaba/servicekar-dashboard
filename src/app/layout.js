@@ -1,4 +1,12 @@
 import "./globals.css";
+import { Bounce, ToastContainer } from "react-toastify";
+
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import { AuthProvider } from "@/providers/AuthContext";
+import { RequestsProvider } from "@/providers/RequestsContext";
+import Providers from "./Providers";
+import { ServicesProvider } from "@/providers/ServicesContext";
 
 export const metadata = {
   title: "اصفهان سرویس کار",
@@ -8,7 +16,32 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <AuthProvider>
+            <ServicesProvider>
+              <RequestsProvider>
+                <Header />
+                <ToastContainer
+                  position="top-right"
+                  autoClose={3000}
+                  hideProgressBar={false}
+                  newestOnTop
+                  closeOnClick={false}
+                  rtl
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  theme="light"
+                  transition={Bounce}
+                />
+                {children}
+                <Footer />
+              </RequestsProvider>
+            </ServicesProvider>
+          </AuthProvider>
+        </Providers>
+      </body>
     </html>
   );
 }
