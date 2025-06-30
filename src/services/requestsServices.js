@@ -17,6 +17,7 @@ export function getRequestsMain(token) {
     class_name: "requests",
     cnt_group: "service",
     function_name: "main",
+    type: "user",
   });
 }
 
@@ -27,10 +28,22 @@ export function addUpdateRequest(data) {
     cnt_group: "service",
     function_name: "register_service_request",
     registered_by_type: "user",
+    type: "user",
     ...data,
   });
 }
 
+export function cancelRequest(data) {
+  return http.post("", {
+    token: data.token,
+    class_name: "requests",
+    cnt_group: "service",
+    function_name: "update_status",
+    order_id: data.order_id,
+    status: 2, // لغو شده
+    type: "user",
+  });
+}
 export function addFile(data) {
   const formData = new FormData();
 
@@ -55,6 +68,7 @@ export function addReview(data) {
     rating: data.rating,
     text: data.text,
     order_id: data.order_id,
+    type: "user",
   });
 }
 
@@ -65,5 +79,17 @@ export function getReviews(data) {
     cnt_group: "service",
     function_name: "review_load",
     order_id: data.order_id,
+    type: "user",
+  });
+}
+
+export function getDataWithMobile(data) {
+  return http.post("", {
+    token: data.token,
+    class_name: "requests",
+    cnt_group: "service",
+    function_name: "get_with_mobile",
+    mobile: data.mobile,
+    type: "user",
   });
 }

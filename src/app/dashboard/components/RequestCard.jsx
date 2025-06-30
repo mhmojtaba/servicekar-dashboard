@@ -80,26 +80,30 @@ export default function RequestCard({
     try {
       const paymentUrl = url + request.id;
 
-      await navigator.clipboard.writeText(paymentUrl);
-
-      toast.success("لینک پرداخت با موفقیت کپی شد");
-    } catch (error) {
-      try {
+      if (typeof window !== "undefined" && navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(paymentUrl);
+        toast.success("لینک پرداخت با موفقیت کپی شد");
+      } else {
         const textArea = document.createElement("textarea");
-        const paymentUrl = url + request.id;
-
         textArea.value = paymentUrl;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand("copy");
+
+        const successful = document.execCommand("copy");
         document.body.removeChild(textArea);
 
-        toast.success("لینک پرداخت با موفقیت کپی شد");
-      } catch (fallbackError) {
-        toast.error("خطا در کپی کردن لینک پرداخت");
-        console.error("Clipboard error:", error, fallbackError);
+        if (successful) {
+          toast.success("لینک پرداخت با موفقیت کپی شد");
+        } else {
+          toast.error("خطا در کپی کردن لینک پرداخت");
+        }
       }
+    } catch (error) {
+      console.error("خطا در کپی کردن لینک پرداخت:", error);
     }
   };
 
@@ -135,9 +139,9 @@ export default function RequestCard({
 
   const isInvoiceCompleted = checkIfInvoiceCompleted(request);
 
-  const shouldShowCancelButton = request.status !== 2 && request.status !== 8;
-  const completedRequest = request.status === 8;
-  const canceledRequest = request.status === 2;
+  const shouldShowCancelButton = request.status != 2 && request.status != 8;
+  const completedRequest = request.status == 8;
+  const canceledRequest = request.status == 2;
 
   return (
     <>
@@ -309,6 +313,7 @@ export default function RequestCard({
                   ) : null}
                   {completedRequest || canceledRequest ? null : (
                     <button
+                      type="button"
                       onClick={handlePaymentLink}
                       className={`flex items-center justify-center gap-2 h-12 px-4 bg-success-50 hover:bg-success-100 text-success-700 rounded-xl border border-success-200 transition-all duration-200 text-sm font-medium hover:shadow-sm ${
                         completedRequest || canceledRequest
@@ -351,7 +356,6 @@ export default function RequestCard({
         />
       </div>
 
-      {/* Cancel Confirmation Modal */}
       {showCancelModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">

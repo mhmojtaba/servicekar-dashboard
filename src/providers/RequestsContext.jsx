@@ -7,6 +7,7 @@ import {
   getRequests,
   getRequestsMain,
   getReviews,
+  getDataWithMobile,
 } from "@/services/requestsServices";
 import { toast } from "react-toastify";
 
@@ -28,6 +29,9 @@ export const RequestsProvider = ({ children }) => {
   const [reviews, setReviews] = useState([]);
   const [url, setUrl] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [suggestedAddresses, setSuggestedAddresses] = useState([]);
+  const [reasonBlock, setReasonBlock] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState(null);
 
   const { isPending: isGettingRequest, mutateAsync: mutateGetRequests } =
     useMutation({
@@ -50,6 +54,13 @@ export const RequestsProvider = ({ children }) => {
     useMutation({
       mutationFn: getReviews,
     });
+
+  const {
+    isPending: isGettingDataWithMobile,
+    mutateAsync: mutateGetDataWithMobile,
+  } = useMutation({
+    mutationFn: getDataWithMobile,
+  });
 
   const addUpdateRequests = async (values) => {
     try {
@@ -129,10 +140,32 @@ export const RequestsProvider = ({ children }) => {
     }
   };
 
+  const fetchDataWithMobile = async (mobile) => {
+    try {
+      const data = {
+        token,
+        mobile,
+      };
+      const { data: response } = await mutateGetDataWithMobile(data);
+
+      if (response?.msg === 0) {
+        setSuggestedAddresses(response?.value);
+      } else {
+        toast.error(response?.msg_text);
+        setReasonBlock(response?.reason_block);
+      }
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    fetchRequestsMain();
-    fetchRequests();
-  }, []);
+    if (token) {
+      fetchRequestsMain();
+      fetchRequests();
+    }
+  }, [token]);
 
   return (
     <RequestsContext.Provider
@@ -160,6 +193,14 @@ export const RequestsProvider = ({ children }) => {
         fetchReviews,
         isGettingReviews,
         url,
+        suggestedAddresses,
+        setSuggestedAddresses,
+        reasonBlock,
+        setReasonBlock,
+        fetchDataWithMobile,
+        isGettingDataWithMobile,
+        selectedAddress,
+        setSelectedAddress,
       }}
     >
       {children}

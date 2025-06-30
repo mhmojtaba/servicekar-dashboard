@@ -8,6 +8,7 @@ export function getServices(data) {
     cnt_group: "service",
     function_name: "service_data",
     search_input: data.search_input || "",
+    type: "user",
     ...data,
   });
 }
@@ -21,6 +22,7 @@ export function getTasks(data) {
     function_name: "tasks_data",
     search_input: data.search_input || "",
     id_service: data.id_service,
+    type: "user",
     ...data,
   });
 }
@@ -35,6 +37,7 @@ export function getParts(data) {
     function_name: "parts_data",
     search_input: data.search_input || "",
     id_service: data.id_service,
+    type: "user",
     ...data,
   });
 }

@@ -8,6 +8,7 @@ import { useAuth } from "@/providers/AuthContext";
 import RequestCard from "./RequestCard";
 import CommentModal from "./CommentModal";
 import BillModal from "./BillModal";
+import { cancelRequest } from "@/services/requestsServices";
 
 export default function RequetsContents() {
   const { mainRequests, isGettingRequest, setSelectedRequest, fetchRequests } =
@@ -28,13 +29,19 @@ export default function RequetsContents() {
 
   const handleCancel = async (request) => {
     try {
-      // call api
-
-      toast.success(`درخواست #${request.id} با موفقیت لغو شد`);
-      fetchRequests();
+      const data = {
+        token: token,
+        order_id: request.id,
+      };
+      const { data: response } = await cancelRequest(data);
+      if (response.msg === 0) {
+        toast.success(`درخواست #${request.id} با موفقیت لغو شد`);
+        fetchRequests();
+      } else {
+        toast.error(response.msg_text);
+      }
     } catch (error) {
       console.error(error);
-      toast.error("خطا در لغو درخواست");
     }
   };
 

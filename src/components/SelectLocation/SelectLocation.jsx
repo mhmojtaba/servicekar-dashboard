@@ -3,6 +3,8 @@ import ReactDOMServer from "react-dom/server";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FaMapMarkerAlt, FaStore } from "react-icons/fa";
+import "leaflet/dist/leaflet.css";
+import "leaflet-draw/dist/leaflet.draw.css";
 import styles from "./SelectLocation.module.css";
 
 const SelectLocation = ({ location, setLocation }) => {

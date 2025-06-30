@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set loading to false after initial mount
     setIsLoading(false);
   }, []);
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import { checkOtp, sendOtp } from "@/services/authServices";
 import { useAuth } from "@/providers/AuthContext";
 import logo from "@/assets/images/logo.png";
 
-const LoginPage = () => {
+const LoginContent = () => {
   const { setUser, setToken } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -42,9 +42,13 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const { data } = await mutateSendOtp(phoneNumber);
-      console.log(data);
+
       if (data?.msg == -1) {
         toast.error("شما دسترسی ورود به این پنل را ندارید");
+        setSendOtpTimer(5);
+        return;
+      } else if (data?.msg == 2) {
+        toast.error("کد تایید اشتباه است");
         setSendOtpTimer(5);
         return;
       }
@@ -73,8 +77,10 @@ const LoginPage = () => {
         };
         setUser(userData);
         setToken(response?.token);
-        localStorage.setItem("token", response?.token);
-        localStorage.setItem("user", JSON.stringify(userData));
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", response?.token);
+          localStorage.setItem("user", JSON.stringify(userData));
+        }
         toast.success("ورود با موفقیت انجام شد");
         navigate();
       }
@@ -122,7 +128,7 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
+    if (typeof window !== "undefined" && localStorage.getItem("token")) {
       navigate();
     }
   }, []);
@@ -238,4 +244,37 @@ const LoginPage = () => {
     </div>
   );
 };
+
+const LoginPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-tr from-primary-100 via-white to-secondary-100 flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm border border-gray-100">
+              <div className="bg-gradient-to-r from-primary-600 to-primary-700 py-6 px-8 text-center">
+                <div className="flex justify-center mb-2">
+                  <div className="bg-white rounded-full py-2 shadow-lg">
+                    <div className="w-[100px] h-[100px] bg-gray-200 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                <h1 className="text-2xl font-bold text-white">
+                  اصفهان سرویس کار
+                </h1>
+              </div>
+              <div className="p-8">
+                <div className="flex items-center justify-center">
+                  <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
+  );
+};
+
 export default LoginPage;

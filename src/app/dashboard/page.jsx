@@ -1,15 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, User, LogOut } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import { useAuth } from "@/providers/AuthContext";
 import { userUpdate } from "@/services/authServices";
 import RequetsContents from "./components/RequetsContents";
 
-const DashboardPage = () => {
+const DashboardContent = () => {
   const { user, setUser, token, logout } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab");
 
   const [activeTab, setActiveTab] = useState("profile");
   const [profileData, setProfileData] = useState({
@@ -17,6 +22,19 @@ const DashboardPage = () => {
     last_name: user?.last_name || "",
   });
   const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [tab]);
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/login?redirect=/dashboard");
+      return;
+    }
+  }, [token, router]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -59,6 +77,7 @@ const DashboardPage = () => {
             })
           );
         }
+
         toast.success("اطلاعات با موفقیت به‌روزرسانی شد");
       } else {
         toast.error(response.data?.msg_text || "خطا در به‌روزرسانی اطلاعات");
@@ -71,9 +90,35 @@ const DashboardPage = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    toast.success("با موفقیت خارج شدید");
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "خروج از حساب کاربری",
+      text: "آیا مطمئن هستید که می‌خواهید از حساب کاربری خود خارج شوید؟",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "خروج",
+      cancelButtonText: "انصراف",
+      reverseButtons: true,
+      customClass: {
+        container: "swal-rtl",
+      },
+    });
+
+    if (result.isConfirmed) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+
+      logout();
+
+      setTimeout(() => {
+        toast.success("با موفقیت خارج شدید");
+        window.location.href = "/";
+      }, 100);
+    }
   };
 
   return (
@@ -234,6 +279,23 @@ const DashboardPage = () => {
         </motion.div>
       </motion.div>
     </div>
+  );
+};
+
+const DashboardPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-neutral-600 font-medium">بارگذاری...</span>
+          </div>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 };
 

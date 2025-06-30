@@ -5,8 +5,8 @@ export function sendOtp(phoneNumber) {
     token: "",
     class_name: "login",
     function_name: "send_cod",
-    id_project: "0",
     mobile: phoneNumber,
+    type: "user",
   });
 }
 
@@ -17,6 +17,7 @@ export function checkOtp(data) {
     function_name: "start",
     mobile: data.phoneNumber,
     code: data.otp,
+    type: "user",
   });
 }
 
@@ -29,6 +30,7 @@ export function userUpdate(data) {
     first_name: data.first_name,
     last_name: data.last_name,
     img: data.img,
+    type: "user",
   });
 }
 
@@ -37,5 +39,6 @@ export function settings_main(token) {
     token: token,
     class_name: "main",
     function_name: "setting_main",
+    type: "user",
   });
 }
