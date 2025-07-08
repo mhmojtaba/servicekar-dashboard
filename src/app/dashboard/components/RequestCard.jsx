@@ -25,6 +25,7 @@ export default function RequestCard({
   onBill,
   onComment,
   onCancel,
+  target = "dashboard",
 }) {
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -298,55 +299,57 @@ export default function RequestCard({
             ) : null}
           </div>
 
-          <div className="pt-6 border-t border-neutral-100">
-            <div className="mb-4">
-              <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <div className="flex flex-wrap gap-3">
-                  {isInvoiceCompleted ? (
+          {target === "dashboard" ? (
+            <div className="pt-6 border-t border-neutral-100">
+              <div className="mb-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap gap-3">
+                    {isInvoiceCompleted ? (
+                      <button
+                        onClick={handleBill}
+                        className="flex items-center justify-center gap-2 h-12 px-8 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 rounded-xl border border-neutral-200 transition-all duration-200 text-sm font-medium hover:shadow-sm"
+                      >
+                        <FileText className="w-4 h-4" />
+                        فاکتور
+                      </button>
+                    ) : null}
+                    {completedRequest || canceledRequest ? null : (
+                      <button
+                        type="button"
+                        onClick={handlePaymentLink}
+                        className={`flex items-center justify-center gap-2 h-12 px-4 bg-success-50 hover:bg-success-100 text-success-700 rounded-xl border border-success-200 transition-all duration-200 text-sm font-medium hover:shadow-sm ${
+                          completedRequest || canceledRequest
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        disabled={completedRequest || canceledRequest}
+                      >
+                        <Link className="w-4 h-4" />
+                        لینک پرداخت
+                      </button>
+                    )}
+                    {request.status === 8 && (
+                      <button
+                        onClick={handleComment}
+                        className="flex items-center justify-center gap-2 h-12 px-8 bg-success-50 hover:bg-success-100 text-success-700 rounded-xl border border-success-200 transition-all duration-200 text-sm font-medium hover:shadow-sm"
+                      >
+                        <Link className="w-4 h-4" />
+                        ثبت نظر
+                      </button>
+                    )}
+                  </div>
+                  {shouldShowCancelButton && (
                     <button
-                      onClick={handleBill}
-                      className="flex items-center justify-center gap-2 h-12 px-8 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 rounded-xl border border-neutral-200 transition-all duration-200 text-sm font-medium hover:shadow-sm"
+                      onClick={() => setShowCancelModal(true)}
+                      className="flex items-center justify-center gap-2 h-12 px-4 bg-error-50 hover:bg-error-100 text-error-700 rounded-xl border border-error-200 transition-all duration-200 text-sm font-medium hover:shadow-sm w-full sm:w-auto"
                     >
-                      <FileText className="w-4 h-4" />
-                      فاکتور
-                    </button>
-                  ) : null}
-                  {completedRequest || canceledRequest ? null : (
-                    <button
-                      type="button"
-                      onClick={handlePaymentLink}
-                      className={`flex items-center justify-center gap-2 h-12 px-4 bg-success-50 hover:bg-success-100 text-success-700 rounded-xl border border-success-200 transition-all duration-200 text-sm font-medium hover:shadow-sm ${
-                        completedRequest || canceledRequest
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                      disabled={completedRequest || canceledRequest}
-                    >
-                      <Link className="w-4 h-4" />
-                      لینک پرداخت
-                    </button>
-                  )}
-                  {request.status === 8 && (
-                    <button
-                      onClick={handleComment}
-                      className="flex items-center justify-center gap-2 h-12 px-8 bg-success-50 hover:bg-success-100 text-success-700 rounded-xl border border-success-200 transition-all duration-200 text-sm font-medium hover:shadow-sm"
-                    >
-                      <Link className="w-4 h-4" />
-                      ثبت نظر
+                      لغو درخواست
                     </button>
                   )}
                 </div>
-                {shouldShowCancelButton && (
-                  <button
-                    onClick={() => setShowCancelModal(true)}
-                    className="flex items-center justify-center gap-2 h-12 px-4 bg-error-50 hover:bg-error-100 text-error-700 rounded-xl border border-error-200 transition-all duration-200 text-sm font-medium hover:shadow-sm w-full sm:w-auto"
-                  >
-                    لغو درخواست
-                  </button>
-                )}
               </div>
             </div>
-          </div>
+          ) : null}
         </div>
 
         <ImagePreview

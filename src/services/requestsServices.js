@@ -93,3 +93,25 @@ export function getDataWithMobile(data) {
     type: "user",
   });
 }
+
+export function getByBarcode(data) {
+  return http.post("", {
+    token: data.token,
+    class_name: "requests",
+    cnt_group: "service",
+    function_name: "get_by_barcode",
+    barcode: data.barcode,
+    type: "user",
+  });
+}
+
+// get request data with barcode
+export function getRequestDataWithBarcode(barcode) {
+  return http.post("", {
+    token: "",
+    class_name: "requests",
+    cnt_group: "service",
+    function_name: "barcode_scanner_api",
+    barcode: barcode,
+  });
+}

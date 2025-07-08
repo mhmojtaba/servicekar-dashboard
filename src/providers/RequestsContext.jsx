@@ -8,6 +8,7 @@ import {
   getRequestsMain,
   getReviews,
   getDataWithMobile,
+  getByBarcode,
 } from "@/services/requestsServices";
 import { toast } from "react-toastify";
 
@@ -27,6 +28,8 @@ export const RequestsProvider = ({ children }) => {
   const [technician, setTechnician] = useState([]);
   const [zones, setZones] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [brand_models, setBrand_models] = useState([]);
   const [url, setUrl] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [suggestedAddresses, setSuggestedAddresses] = useState([]);
@@ -61,6 +64,26 @@ export const RequestsProvider = ({ children }) => {
   } = useMutation({
     mutationFn: getDataWithMobile,
   });
+
+  const {
+    isPending: isGettingDeviceWithBarcode,
+    mutateAsync: mutateGetDeviceWithBarcode,
+  } = useMutation({
+    mutationFn: getByBarcode,
+  });
+
+  const getDeviceWithBarcode = async (barcode) => {
+    try {
+      const data = {
+        token,
+        barcode,
+      };
+      const { data: response } = await mutateGetDeviceWithBarcode(data);
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const addUpdateRequests = async (values) => {
     try {
@@ -116,6 +139,8 @@ export const RequestsProvider = ({ children }) => {
         setService(response?.service);
         setTechnician(response?.technician?.technicians);
         setZones(response?.zones);
+        setBrands(response?.brands);
+        setBrand_models(response?.brand_models);
       } else {
         toast.error(response?.msg_text);
       }
@@ -201,6 +226,9 @@ export const RequestsProvider = ({ children }) => {
         isGettingDataWithMobile,
         selectedAddress,
         setSelectedAddress,
+        brands,
+        brand_models,
+        getDeviceWithBarcode,
       }}
     >
       {children}

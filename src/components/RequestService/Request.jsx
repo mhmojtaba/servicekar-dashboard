@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
@@ -16,12 +16,29 @@ import {
   CheckCircle,
   AlertCircle,
   Upload,
+  ChevronDown,
+  ChevronUp,
+  Phone,
+  Calendar,
+  FileText,
+  Home,
+  Building,
+  Package,
+  Camera,
+  CheckCircle2,
 } from "lucide-react";
 import { FaExclamationTriangle, FaSpinner } from "react-icons/fa";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 
 import { useRequests } from "@/providers/RequestsContext";
 import { useAuth } from "@/providers/AuthContext";
-import { selectOptionsGenerator, uploadFile } from "@/utils/utils";
+import {
+  preventArrowKeyChange,
+  selectOptionsGenerator,
+  uploadFile,
+} from "@/utils/utils";
 import { customSelectStyles } from "@/styles/customeStyles";
 
 const SelectLocation = dynamic(
@@ -41,6 +58,99 @@ const SelectLocation = dynamic(
   }
 );
 
+// Enhanced Collapsible Section Component
+const CollapsibleSection = ({
+  title,
+  icon: Icon,
+  children,
+  isExpanded,
+  onToggle,
+  isMobile = false,
+  gradient = "from-blue-500 to-blue-600",
+  description = "",
+}) => {
+  if (!isMobile) {
+    return (
+      <motion.div
+        className="bg-white rounded-3xl border border-neutral-200 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="bg-gradient-to-r from-neutral-50 to-white p-6 border-b border-neutral-100">
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-14 h-14 bg-gradient-to-br ${gradient} rounded-2xl flex items-center justify-center shadow-lg`}
+            >
+              <Icon className="w-7 h-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-neutral-800 mb-1">
+                {title}
+              </h3>
+              {description && (
+                <p className="text-sm text-neutral-600">{description}</p>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="p-6">{children}</div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      className="bg-white rounded-3xl border border-neutral-200 shadow-lg overflow-hidden mb-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <button
+        onClick={onToggle}
+        className="w-full p-5 flex items-center justify-between hover:bg-neutral-50 transition-all duration-200 group"
+      >
+        <div className="flex items-center gap-4">
+          <div
+            className={`w-12 h-12 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200`}
+          >
+            <Icon className="w-6 h-6 text-white" />
+          </div>
+          <div className="text-right">
+            <h3 className="text-lg font-bold text-neutral-800">{title}</h3>
+            {description && (
+              <p className="text-xs text-neutral-500 mt-1">{description}</p>
+            )}
+          </div>
+        </div>
+        <div className="text-neutral-400 group-hover:text-neutral-600 transition-colors duration-200">
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5" />
+          ) : (
+            <ChevronDown className="w-5 h-5" />
+          )}
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="p-5 border-t border-neutral-100 bg-gradient-to-br from-neutral-50/50 to-white">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
 const AddRequest = () => {
   const router = useRouter();
   const { token, user } = useAuth();
@@ -58,6 +168,9 @@ const AddRequest = () => {
     setReasonBlock,
     selectedAddress,
     setSelectedAddress,
+    brands,
+    brand_models,
+    getDeviceWithBarcode,
   } = useRequests();
 
   const [requestData, setRequestData] = useState({
@@ -65,19 +178,40 @@ const AddRequest = () => {
     requester_type: null,
     operation_type: null,
     address: "",
-    device_count: "",
-    mobile: user?.mobile || "",
-    first_name: user?.first_name || "",
-    last_name: user?.last_name || "",
-    img: "",
+    device_count: 1,
+    mobile: "",
+    first_name: "",
+    last_name: "",
+    national_id: "",
+    birth_date: "",
+    phone: "",
+    img: null,
+    install_date: "",
+    manufacturer_serial: "",
+    manufacturer_acceptance_code: "",
+    barcode: "",
+    brand_id: null,
+    model_id: null,
+    install_location: "",
+    usage_location: "",
+    construction_status: "",
+    install_as: "",
+    building_area: "",
+    postal_code: "",
   });
 
   const [location, setLocation] = useState([32.644397, 51.667455]);
-
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    personal: true,
+    service: false,
+    location: false,
+    image: false,
+  });
 
   const [errors, setErrors] = useState({
     id_service: false,
@@ -85,31 +219,29 @@ const AddRequest = () => {
     operation_type: false,
     address: false,
     location: false,
-    device_count: false,
     mobile: false,
     first_name: false,
     last_name: false,
   });
 
+  const install_as_options = [
+    { value: "اولین", label: "اولین" },
+    { value: "جایگزین", label: "جایگزین" },
+  ];
+
   const serviceOptions = selectOptionsGenerator(service);
 
-  function reverseFunction(e) {
-    if (!e) return;
-    var url = `https://map.ir/reverse/no?lat=${e[0]}&lon=${e[1]}`;
-    fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.NEXT_PUBLIC_MAPIR_API_KEY,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => setRequestData({ ...requestData, address: data.address }))
-      .catch((error) => console.error(error));
-  }
-
+  // Detect mobile device
   useEffect(() => {
-    reverseFunction(location);
-  }, [location]);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const checkMobileStatus = async () => {
@@ -135,6 +267,25 @@ const AddRequest = () => {
   }, [requestData.mobile, errors.mobile]);
 
   useEffect(() => {
+    const getDeviceDataWithBarcode = async () => {
+      if (requestData.barcode) {
+        const res = await getDeviceWithBarcode(requestData.barcode);
+
+        if (res?.msg === 0) {
+          setRequestData((prev) => ({
+            ...prev,
+            id_service: res?.data?.id_service,
+            brand_id: res?.data?.brand_id,
+            model_id: res?.data?.model_id,
+            requester_type: res?.data?.requester_type,
+          }));
+        }
+      }
+    };
+    getDeviceDataWithBarcode();
+  }, [requestData.barcode]);
+
+  useEffect(() => {
     if (selectedAddress !== null) {
       setRequestData({
         ...requestData,
@@ -152,6 +303,43 @@ const AddRequest = () => {
       });
     }
   }, [selectedAddress]);
+
+  const brandOptions = useMemo(() => {
+    if (requestData.id_service) {
+      const brandsFound = brands.filter(
+        (brand) => brand.id_service == requestData.id_service
+      );
+      return brandsFound.length > 0 ? selectOptionsGenerator(brandsFound) : [];
+    }
+    return [];
+  }, [requestData.id_service, brands]);
+
+  const modelOptions = useMemo(() => {
+    if (requestData.brand_id) {
+      const modelsFound = brand_models.filter(
+        (model) => model.id_parent == requestData.brand_id
+      );
+      return modelsFound.length > 0 ? selectOptionsGenerator(modelsFound) : [];
+    }
+    return [];
+  }, [requestData.brand_id, brand_models]);
+
+  const handleBrandChange = (e) => {
+    setRequestData((prev) => ({
+      ...prev,
+      brand_id: e.value,
+      model_id: null,
+    }));
+  };
+
+  const handleServiceChange = (e) => {
+    setRequestData((prev) => ({
+      ...prev,
+      id_service: e.value,
+      brand_id: null,
+      model_id: null,
+    }));
+  };
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -215,7 +403,7 @@ const AddRequest = () => {
           requester_type: null,
           operation_type: null,
           address: "",
-          device_count: "",
+          device_count: 1,
           mobile: "",
           first_name: "",
           last_name: "",
@@ -228,7 +416,6 @@ const AddRequest = () => {
           operation_type: false,
           address: false,
           location: false,
-          device_count: false,
           mobile: false,
           first_name: false,
           last_name: false,
@@ -244,6 +431,13 @@ const AddRequest = () => {
     }
   };
 
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
   const validateForm = () => {
     let valid = true;
     if (
@@ -254,7 +448,6 @@ const AddRequest = () => {
       !requestData.operation_type ||
       !requestData.address ||
       !location.length ||
-      !requestData.device_count ||
       !requestData.requester_type ||
       isUpdating
     ) {
@@ -264,179 +457,267 @@ const AddRequest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-neutral-50 to-neutral-100">
-      {/* Header Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-600">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-purple-600/90"></div>
+          <div className="absolute top-0 left-0 w-full h-full opacity-30">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.1)_1px,transparent_0)] bg-[length:20px_20px]"></div>
+          </div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <motion.div
             className="text-center text-white"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-6">
-              <Plus className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+            <motion.div
+              className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-8 shadow-2xl"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Plus className="w-10 h-10 text-white" />
+            </motion.div>
+
+            <motion.h1
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
               ارسال درخواست جدید
-            </h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+            </motion.h1>
+
+            <motion.p
+              className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
               اطلاعات خود را با دقت وارد کنید تا درخواست شما به بهترین شکل ثبت
               شود
-            </p>
+            </motion.p>
+
+            <motion.div
+              className="mt-8 flex items-center justify-center gap-2 text-white/70"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+            >
+              <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium">
+                فرم هوشمند و کاربرپسند
+              </span>
+            </motion.div>
           </motion.div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
         <motion.div
-          className="bg-surface rounded-3xl shadow-2xl border border-neutral-100 overflow-hidden"
+          className="bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden"
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <form onSubmit={handleSubmit} className="p-6 lg:p-8 xl:p-12">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-12">
-              {/* Left Column */}
-              <div className="space-y-8">
-                {/* Personal Information Section */}
-                <motion.div
-                  className="bg-gradient-to-br from-neutral-50 to-white rounded-2xl p-6 border border-neutral-100 shadow-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 }}
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8 lg:p-10 xl:p-12">
+            <div
+              className={`${isMobile ? "space-y-6" : "grid grid-cols-1 xl:grid-cols-2 gap-10 xl:gap-16"}`}
+            >
+              <div className={`${isMobile ? "space-y-6" : "space-y-10"}`}>
+                <CollapsibleSection
+                  title="اطلاعات شخصی"
+                  icon={User}
+                  description="اطلاعات هویتی و تماس خود را وارد کنید"
+                  isExpanded={isMobile ? expandedSections.personal : true}
+                  onToggle={() => toggleSection("personal")}
+                  isMobile={isMobile}
+                  gradient="from-blue-500 to-blue-600"
                 >
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <User className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-neutral-800">
-                        اطلاعات شخصی
-                      </h3>
-                      <p className="text-sm text-neutral-600">
-                        اطلاعات هویتی خود را وارد کنید
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="first_name"
-                        className="block text-sm font-semibold text-neutral-700"
-                      >
-                        نام <span className="text-error-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="first_name"
-                        value={requestData.first_name}
-                        onChange={(e) =>
-                          setRequestData({
-                            ...requestData,
-                            first_name: e.target.value,
-                          })
-                        }
-                        className="block w-full px-4 py-3 text-sm text-neutral-700 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 hover:border-neutral-300 shadow-sm"
-                        placeholder="نام خود را وارد کنید"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="last_name"
-                        className="block text-sm font-semibold text-neutral-700"
-                      >
-                        نام خانوادگی <span className="text-error-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="last_name"
-                        value={requestData.last_name}
-                        onChange={(e) =>
-                          setRequestData({
-                            ...requestData,
-                            last_name: e.target.value,
-                          })
-                        }
-                        className="block w-full px-4 py-3 text-sm text-neutral-700 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 hover:border-neutral-300 shadow-sm"
-                        placeholder="نام خانوادگی خود را وارد کنید"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="mobile"
-                      className="block text-sm font-semibold text-neutral-700"
+                  <div className={`${isMobile ? "space-y-5" : "space-y-6"}`}>
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
                     >
-                      شماره موبایل <span className="text-error-500">*</span>
-                    </label>
-                    <input
-                      style={{ direction: "ltr" }}
-                      type="tel"
-                      id="mobile"
-                      value={requestData.mobile}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setRequestData({ ...requestData, mobile: value });
-                        const regex = /^09\d{9}$/;
-                        if (value && !regex.test(value)) {
-                          setErrors({ ...errors, mobile: true });
-                        } else {
-                          setErrors({ ...errors, mobile: false });
-                        }
-                      }}
-                      className={`block w-full px-4 py-3 text-sm text-neutral-700 bg-white border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 hover:border-neutral-300 shadow-sm ${
-                        errors.mobile
-                          ? "border-error-500 bg-error-50"
-                          : "border-neutral-200"
-                      }`}
-                      placeholder="09123456789"
-                      maxLength="11"
-                      required
-                    />
-                    {errors.mobile && requestData.mobile && (
-                      <p className="text-sm text-error-500 flex items-center gap-2 mt-2">
-                        <AlertCircle className="w-4 h-4" />
-                        شماره موبایل معتبر نیست
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <User className="w-4 h-4 text-blue-500" />
+                          نام <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={requestData.first_name}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              first_name: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3.5 text-neutral-700 bg-white border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          placeholder="نام خود را وارد کنید"
+                          required
+                        />
+                      </div>
 
-                {/* Mobile Status Section */}
-                {isGettingDataWithMobile ? (
-                  <motion.div
-                    className="bg-gradient-to-br from-neutral-50 to-white rounded-2xl p-8 border border-neutral-200 shadow-sm"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <div className="flex items-center justify-center">
-                      <div className="text-center">
-                        <FaSpinner className="text-3xl text-primary-500 mb-3 animate-spin mx-auto" />
-                        <p className="text-neutral-600 font-medium">
-                          در حال بررسی شماره موبایل...
-                        </p>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <User className="w-4 h-4 text-blue-500" />
+                          نام خانوادگی <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={requestData.last_name}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              last_name: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3.5 text-neutral-700 bg-white border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          placeholder="نام خانوادگی خود را وارد کنید"
+                          required
+                        />
                       </div>
                     </div>
-                  </motion.div>
-                ) : isBlocked ? (
+
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-green-500" />
+                          شماره موبایل <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          style={{ direction: "ltr" }}
+                          type="tel"
+                          value={requestData.mobile}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setRequestData({ ...requestData, mobile: value });
+                            const regex = /^09\d{9}$/;
+                            if (value && !regex.test(value)) {
+                              setErrors({ ...errors, mobile: true });
+                            } else {
+                              setErrors({ ...errors, mobile: false });
+                            }
+                          }}
+                          className={`w-full px-4 py-3.5 text-neutral-700 bg-white border-2 rounded-xl focus:ring-2 transition-all duration-200 placeholder:text-neutral-400 ${
+                            errors.mobile
+                              ? "border-red-500 bg-red-50 focus:ring-red-500/20 focus:border-red-500"
+                              : "border-neutral-200 hover:border-neutral-300 focus:ring-green-500/20 focus:border-green-500"
+                          }`}
+                          placeholder="09123456789"
+                          maxLength="11"
+                          required
+                        />
+                        {errors.mobile && requestData.mobile && (
+                          <p className="text-sm text-red-500 flex items-center mt-2">
+                            <span className="w-1 h-1 bg-red-500 rounded-full ml-2"></span>
+                            شماره موبایل معتبر نیست
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-purple-500" />
+                          تلفن ثابت
+                        </label>
+                        <input
+                          style={{ direction: "ltr" }}
+                          type="tel"
+                          value={requestData.phone}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setRequestData({ ...requestData, phone: value });
+                          }}
+                          className="w-full px-4 py-3.5 text-neutral-700 bg-white border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          placeholder="02111111111"
+                          maxLength="11"
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-orange-500" />
+                          کد ملی
+                        </label>
+                        <input
+                          style={{ direction: "ltr" }}
+                          type="text"
+                          value={requestData.national_id}
+                          onChange={(e) => {
+                            const value = e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 10);
+                            setRequestData({
+                              ...requestData,
+                              national_id: value,
+                            });
+                          }}
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          placeholder="کد ملی"
+                          maxLength={10}
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-indigo-500" />
+                          تاریخ تولد
+                        </label>
+                        <div className="relative">
+                          <DatePicker
+                            value={requestData.birth_date || null}
+                            onChange={(date) =>
+                              setRequestData({
+                                ...requestData,
+                                birth_date:
+                                  date?.format?.("YYYY/MM/DD") || date,
+                              })
+                            }
+                            calendar={persian}
+                            locale={persian_fa}
+                            containerClassName="w-full"
+                            style={{ direction: "ltr" }}
+                            format="YYYY/MM/DD"
+                            placeholder="انتخاب تاریخ تولد"
+                            inputClass="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 z-10"
+                            calendarPosition="bottom-start"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleSection>
+
+                {isGettingDataWithMobile && (
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
+                    <h4 className="text-lg font-bold text-neutral-800 mb-4 flex items-center">
+                      <Loader2 className="w-5 h-5 animate-spin text-blue-500 ml-2" />
+                      در حال دریافت اطلاعات
+                    </h4>
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                    </div>
+                  </div>
+                )}
+
+                {isBlocked && (
                   <motion.div
                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="bg-gradient-to-br from-error-50 to-red-100 rounded-2xl p-8 border-2 border-error-200 relative overflow-hidden"
+                    className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 border-2 border-red-200 relative overflow-hidden"
                   >
                     <div className="absolute inset-0 opacity-5">
-                      <div className="absolute top-6 left-6 w-12 h-12 bg-error-400 rounded-full blur-sm"></div>
-                      <div className="absolute bottom-6 right-6 w-8 h-8 bg-error-300 rounded-full blur-sm"></div>
+                      <div className="absolute top-6 left-6 w-12 h-12 bg-red-400 rounded-full blur-sm"></div>
+                      <div className="absolute bottom-6 right-6 w-8 h-8 bg-red-300 rounded-full blur-sm"></div>
                     </div>
 
                     <div className="relative z-10 text-center">
@@ -449,7 +730,7 @@ const AddRequest = () => {
                           type: "spring",
                           stiffness: 200,
                         }}
-                        className="inline-flex items-center justify-center w-16 h-16 bg-error-500 text-white rounded-full mb-4 shadow-lg"
+                        className="inline-flex items-center justify-center w-16 h-16 bg-red-500 text-white rounded-full mb-4 shadow-lg"
                       >
                         <FaExclamationTriangle size={24} />
                       </motion.div>
@@ -458,7 +739,7 @@ const AddRequest = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4, duration: 0.3 }}
-                        className="text-2xl font-bold text-error-800 mb-3"
+                        className="text-xl font-bold text-red-800 mb-3"
                       >
                         کاربر مسدود شده
                       </motion.h3>
@@ -467,7 +748,7 @@ const AddRequest = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.3 }}
-                        className="text-error-700 text-base mb-4 leading-relaxed max-w-md mx-auto"
+                        className="text-red-700 text-sm mb-4 leading-relaxed max-w-md mx-auto"
                       >
                         این شماره موبایل در لیست سیاه قرار دارد و امکان ثبت
                         درخواست جدید ندارد
@@ -478,164 +759,263 @@ const AddRequest = () => {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.6, duration: 0.3 }}
-                          className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-error-200 shadow-inner max-w-md mx-auto"
+                          className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-red-200 shadow-inner max-w-md mx-auto"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-2 h-2 bg-error-500 rounded-full mt-2"></div>
+                            <div className="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                             <div className="text-right">
-                              <span className="text-sm font-semibold text-error-800 block mb-1">
+                              <span className="text-sm font-semibold text-red-800 block mb-1">
                                 دلیل مسدودیت:
                               </span>
-                              <p className="text-sm text-error-700 leading-relaxed">
+                              <p className="text-sm text-red-700 leading-relaxed">
                                 {reasonBlock}
                               </p>
                             </div>
                           </div>
                         </motion.div>
                       )}
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7, duration: 0.3 }}
-                        className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-white/60 rounded-full border border-error-200"
-                      >
-                        <span className="w-2 h-2 bg-error-500 rounded-full animate-pulse"></span>
-                        <span className="text-xs text-error-600 font-medium">
-                          برای رفع مسدودیت با مدیر سیستم تماس بگیرید
-                        </span>
-                      </motion.div>
                     </div>
                   </motion.div>
-                ) : suggestedAddresses.length > 0 ? (
-                  <motion.div
-                    className="bg-gradient-to-br from-neutral-50 to-white rounded-2xl p-6 border border-neutral-200 shadow-sm"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-2 h-8 bg-gradient-to-b from-secondary-500 to-secondary-600 rounded-full"></div>
-                      <h4 className="text-xl font-bold text-neutral-800">
-                        آدرس های پیشنهادی
-                      </h4>
-                    </div>
+                )}
+
+                {suggestedAddresses.length > 0 && (
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200">
+                    <h4 className="text-lg font-bold text-neutral-800 mb-4 flex items-center">
+                      <div className="w-2 h-6 bg-gradient-to-b from-green-500 to-green-600 rounded-full ml-3"></div>
+                      پیشنهادات
+                    </h4>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                       {suggestedAddresses.map((address, index) => (
                         <div
                           key={index}
-                          className={`cursor-pointer border-2 p-4 rounded-xl transition-all duration-200 hover:shadow-md ${
+                          className={`cursor-pointer border-2 p-3 rounded-xl transition-all duration-200 ${
                             selectedAddress === address
-                              ? "border-primary-400 bg-primary-50 shadow-md"
-                              : "border-neutral-200 hover:border-neutral-300"
+                              ? "border-green-400 bg-green-50"
+                              : "border-neutral-200 hover:border-green-300"
                           }`}
                           onClick={() => setSelectedAddress(address)}
                         >
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              {selectedAddress === address && (
-                                <CheckCircle className="w-4 h-4 text-primary-500" />
-                              )}
-                              <span
-                                className={`text-sm font-medium ${
-                                  selectedAddress === address
-                                    ? "text-primary-700"
-                                    : "text-neutral-600"
-                                }`}
-                              >
-                                {address.first_name || "نام ثبت نشده"}{" "}
-                                {address.last_name}
-                              </span>
-                            </div>
-                            <div
-                              className={`text-xs leading-relaxed ${
+                          <div className="text-sm">
+                            <span
+                              className={`font-medium block mb-1 ${
                                 selectedAddress === address
-                                  ? "text-primary-600"
+                                  ? "text-green-600"
+                                  : "text-neutral-600"
+                              }`}
+                            >
+                              {address.first_name || "نام ثبت نشده"}{" "}
+                              {address.last_name}
+                            </span>
+                            <span
+                              className={`text-xs ${
+                                selectedAddress === address
+                                  ? "text-green-500"
                                   : "text-neutral-500"
                               }`}
                             >
                               {address.address}
-                            </div>
+                            </span>
                           </div>
                         </div>
                       ))}
                     </div>
-                  </motion.div>
-                ) : null}
+                  </div>
+                )}
 
-                {/* Service Information Section */}
-                <motion.div
-                  className="bg-gradient-to-br from-neutral-50 to-white rounded-2xl p-6 border border-neutral-100 shadow-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 }}
+                <CollapsibleSection
+                  title="اطلاعات سرویس"
+                  icon={Settings}
+                  description="جزئیات سرویس مورد نظر را مشخص کنید"
+                  isExpanded={isMobile ? expandedSections.service : true}
+                  onToggle={() => toggleSection("service")}
+                  isMobile={isMobile}
+                  gradient="from-purple-500 to-purple-600"
                 >
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <Settings className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-neutral-800">
-                        اطلاعات سرویس
-                      </h3>
-                      <p className="text-sm text-neutral-600">
-                        جزئیات سرویس مورد نظر را مشخص کنید
-                      </p>
-                    </div>
-                  </div>
+                  <div className={`${isMobile ? "space-y-5" : "space-y-6"}`}>
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Package className="w-4 h-4 text-purple-500" />
+                          نام سرویس <span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                          options={serviceOptions}
+                          value={serviceOptions.find(
+                            (option) => option.value == requestData.id_service
+                          )}
+                          onChange={handleServiceChange}
+                          styles={{
+                            ...customSelectStyles,
+                            control: (provided, state) => ({
+                              ...provided,
+                              minHeight: "48px",
+                              borderRadius: "12px",
+                              borderColor: state.isFocused
+                                ? "#8B5CF6"
+                                : "#E5E7EB",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(139, 92, 246, 0.1)"
+                                : "none",
+                              "&:hover": {
+                                borderColor: "#8B5CF6",
+                              },
+                            }),
+                          }}
+                          placeholder="سرویس مورد نظر را انتخاب کنید"
+                          isSearchable
+                          menuPortalTarget={
+                            typeof document !== "undefined"
+                              ? document.body
+                              : null
+                          }
+                          menuPosition="fixed"
+                        />
+                      </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <div className="space-y-2">
-                      <label className="block text-sm font-semibold text-neutral-700">
-                        نام سرویس <span className="text-error-500">*</span>
-                      </label>
-                      <Select
-                        options={serviceOptions}
-                        value={serviceOptions.find(
-                          (option) => option.value == requestData.id_service
-                        )}
-                        onChange={(e) =>
-                          setRequestData({
-                            ...requestData,
-                            id_service: e.value,
-                          })
-                        }
-                        styles={customSelectStyles}
-                        placeholder="سرویس مورد نظر را انتخاب کنید"
-                        isSearchable
-                        menuPortalTarget={document.body}
-                        menuPosition="fixed"
-                      />
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <User className="w-4 h-4 text-purple-500" />
+                          درخواست کننده <span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                          options={requester_type}
+                          value={requester_type.find(
+                            (option) =>
+                              option.value == requestData.requester_type
+                          )}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              requester_type: e.value,
+                            })
+                          }
+                          styles={{
+                            ...customSelectStyles,
+                            control: (provided, state) => ({
+                              ...provided,
+                              minHeight: "48px",
+                              borderRadius: "12px",
+                              borderColor: state.isFocused
+                                ? "#8B5CF6"
+                                : "#E5E7EB",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(139, 92, 246, 0.1)"
+                                : "none",
+                              "&:hover": {
+                                borderColor: "#8B5CF6",
+                              },
+                            }),
+                          }}
+                          placeholder="نوع درخواست کننده را انتخاب کنید"
+                          isSearchable
+                          menuPortalTarget={
+                            typeof document !== "undefined"
+                              ? document.body
+                              : null
+                          }
+                          menuPosition="fixed"
+                        />
+                      </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="block text-sm font-semibold text-neutral-700">
-                        درخواست کننده <span className="text-error-500">*</span>
-                      </label>
-                      <Select
-                        options={requester_type}
-                        value={requester_type.find(
-                          (option) => option.value == requestData.requester_type
-                        )}
-                        onChange={(e) =>
-                          setRequestData({
-                            ...requestData,
-                            requester_type: e.value,
-                          })
-                        }
-                        styles={customSelectStyles}
-                        placeholder="نوع درخواست کننده را انتخاب کنید"
-                        isSearchable
-                        menuPortalTarget={document.body}
-                        menuPosition="fixed"
-                      />
-                    </div>
-                  </div>
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Package className="w-4 h-4 text-purple-500" />
+                          نام برند
+                        </label>
+                        <Select
+                          options={brandOptions}
+                          isDisabled={
+                            !requestData.id_service || brandOptions.length === 0
+                          }
+                          value={
+                            brandOptions.find(
+                              (option) => option.value == requestData.brand_id
+                            ) || null
+                          }
+                          onChange={handleBrandChange}
+                          styles={{
+                            ...customSelectStyles,
+                            control: (provided, state) => ({
+                              ...provided,
+                              minHeight: "48px",
+                              borderRadius: "12px",
+                              borderColor: state.isFocused
+                                ? "#8B5CF6"
+                                : "#E5E7EB",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(139, 92, 246, 0.1)"
+                                : "none",
+                              "&:hover": {
+                                borderColor: "#8B5CF6",
+                              },
+                            }),
+                          }}
+                          placeholder="نام برند را انتخاب کنید"
+                          isSearchable
+                          menuPosition="fixed"
+                        />
+                      </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="block text-sm font-semibold text-neutral-700">
-                        نوع سرویس <span className="text-error-500">*</span>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Package className="w-4 h-4 text-purple-500" />
+                          نام مدل
+                        </label>
+                        <Select
+                          options={modelOptions}
+                          isDisabled={
+                            !requestData.brand_id || modelOptions.length === 0
+                          }
+                          value={
+                            modelOptions.find(
+                              (option) => option.value == requestData.model_id
+                            ) || null
+                          }
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              model_id: e.value,
+                            })
+                          }
+                          styles={{
+                            ...customSelectStyles,
+                            control: (provided, state) => ({
+                              ...provided,
+                              minHeight: "48px",
+                              borderRadius: "12px",
+                              borderColor: state.isFocused
+                                ? "#8B5CF6"
+                                : "#E5E7EB",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(139, 92, 246, 0.1)"
+                                : "none",
+                              "&:hover": {
+                                borderColor: "#8B5CF6",
+                              },
+                            }),
+                          }}
+                          placeholder="نام مدل را انتخاب کنید"
+                          isSearchable
+                          menuPortalTarget={
+                            typeof document !== "undefined"
+                              ? document.body
+                              : null
+                          }
+                          menuPosition="fixed"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <Settings className="w-4 h-4 text-purple-500" />
+                        نوع سرویس <span className="text-red-500">*</span>
                       </label>
                       <Select
                         options={operation_type}
@@ -648,62 +1028,43 @@ const AddRequest = () => {
                             operation_type: e.value,
                           })
                         }
-                        styles={customSelectStyles}
+                        styles={{
+                          ...customSelectStyles,
+                          control: (provided, state) => ({
+                            ...provided,
+                            minHeight: "48px",
+                            borderRadius: "12px",
+                            borderColor: state.isFocused
+                              ? "#8B5CF6"
+                              : "#E5E7EB",
+                            boxShadow: state.isFocused
+                              ? "0 0 0 2px rgba(139, 92, 246, 0.1)"
+                              : "none",
+                            "&:hover": {
+                              borderColor: "#8B5CF6",
+                            },
+                          }),
+                        }}
                         placeholder="نوع سرویس را انتخاب کنید"
                         isSearchable
-                        menuPortalTarget={document.body}
+                        menuPortalTarget={
+                          typeof document !== "undefined" ? document.body : null
+                        }
                         menuPosition="fixed"
                       />
                     </div>
-
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="device_count"
-                        className="block text-sm font-semibold text-neutral-700"
-                      >
-                        تعداد دستگاه <span className="text-error-500">*</span>
-                      </label>
-                      <input
-                        style={{ direction: "ltr" }}
-                        type="number"
-                        id="device_count"
-                        value={requestData.device_count}
-                        onChange={(e) =>
-                          setRequestData({
-                            ...requestData,
-                            device_count: e.target.value,
-                          })
-                        }
-                        className="block w-full px-4 py-3 text-sm text-neutral-700 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 hover:border-neutral-300 shadow-sm no-spinner placeholder:text-right"
-                        placeholder="تعداد دستگاه را وارد کنید"
-                        min="1"
-                        required
-                      />
-                    </div>
                   </div>
-                </motion.div>
+                </CollapsibleSection>
 
-                {/* Image Upload Section */}
-                <motion.div
-                  className="bg-gradient-to-br from-neutral-50 to-white rounded-2xl p-6 border border-neutral-100 shadow-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.5 }}
+                <CollapsibleSection
+                  title="تصویر (اختیاری)"
+                  icon={Camera}
+                  description="تصویر مرتبط با درخواست خود را آپلود کنید"
+                  isExpanded={isMobile ? expandedSections.image : true}
+                  onToggle={() => toggleSection("image")}
+                  isMobile={isMobile}
+                  gradient="from-orange-500 to-orange-600"
                 >
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <Image className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-neutral-800">
-                        تصویر (اختیاری)
-                      </h3>
-                      <p className="text-sm text-neutral-600">
-                        تصویر مرتبط با درخواست خود را آپلود کنید
-                      </p>
-                    </div>
-                  </div>
-
                   {!imagePreview ? (
                     <div className="space-y-4">
                       <input
@@ -719,13 +1080,13 @@ const AddRequest = () => {
                         className={`block w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
                           isImageUploading
                             ? "border-neutral-300 bg-neutral-100 cursor-not-allowed"
-                            : "border-neutral-300 hover:border-primary-400 hover:bg-primary-50"
+                            : "border-neutral-300 hover:border-orange-400 hover:bg-orange-50"
                         }`}
                       >
                         <div className="text-center">
                           {isImageUploading ? (
                             <div className="flex flex-col items-center gap-3">
-                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
                               <p className="text-sm font-medium text-neutral-600">
                                 در حال آپلود...
                               </p>
@@ -757,7 +1118,7 @@ const AddRequest = () => {
                         <button
                           type="button"
                           onClick={handleRemoveImage}
-                          className="absolute top-3 right-3 w-10 h-10 bg-error-500 hover:bg-error-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
+                          className="absolute top-3 right-3 w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
                         >
                           <Trash className="w-5 h-5" />
                         </button>
@@ -767,36 +1128,262 @@ const AddRequest = () => {
                       </p>
                     </div>
                   )}
-                </motion.div>
+                </CollapsibleSection>
               </div>
 
-              {/* Right Column */}
-              <div className="space-y-8">
-                {/* Location Information Section */}
-                <motion.div
-                  className="bg-gradient-to-br from-neutral-50 to-white rounded-2xl p-6 border border-neutral-100 shadow-sm"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.6 }}
+              <div className={`${isMobile ? "space-y-6" : "space-y-10"}`}>
+                <CollapsibleSection
+                  title="اطلاعات تکمیلی"
+                  icon={Building}
+                  description="جزئیات اضافی درخواست را مشخص کنید"
+                  isExpanded={isMobile ? expandedSections.service : true}
+                  onToggle={() => toggleSection("service")}
+                  isMobile={isMobile}
+                  gradient="from-indigo-500 to-indigo-600"
                 >
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-error-500 to-error-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <MapPin className="w-6 h-6 text-white" />
+                  <div className={`${isMobile ? "space-y-5" : "space-y-6"}`}>
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-indigo-500" />
+                          تاریخ نصب
+                        </label>
+                        <DatePicker
+                          value={requestData.install_date}
+                          onChange={(date) =>
+                            setRequestData({
+                              ...requestData,
+                              install_date:
+                                date?.format?.("YYYY/MM/DD") || date,
+                            })
+                          }
+                          calendar={persian}
+                          locale={persian_fa}
+                          containerClassName="w-full"
+                          style={{ direction: "ltr" }}
+                          format="YYYY/MM/DD"
+                          placeholder="انتخاب تاریخ نصب"
+                          inputClass="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 z-10"
+                          calendarPosition="bottom-start"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-neutral-800">
-                        اطلاعات مکانی
-                      </h3>
-                      <p className="text-sm text-neutral-600">
-                        موقعیت و آدرس دقیق را مشخص کنید
-                      </p>
+
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-indigo-500" />
+                          بارکد
+                        </label>
+                        <input
+                          style={{ direction: "ltr" }}
+                          type="text"
+                          value={requestData.barcode}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              barcode: e.target.value,
+                            })
+                          }
+                          placeholder="بارکد"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-indigo-500" />
+                          شماره سریال تولید کننده
+                        </label>
+                        <input
+                          style={{ direction: "ltr" }}
+                          type="text"
+                          value={requestData.manufacturer_serial}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              manufacturer_serial: e.target.value,
+                            })
+                          }
+                          placeholder="شماره سریال تولید کننده"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-indigo-500" />
+                          کد پذیرش تولید کننده
+                        </label>
+                        <input
+                          style={{ direction: "ltr" }}
+                          type="text"
+                          value={requestData.manufacturer_acceptance_code}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              manufacturer_acceptance_code: e.target.value,
+                            })
+                          }
+                          placeholder="کد پذیرش تولید کننده"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Home className="w-4 h-4 text-indigo-500" />
+                          محل نصب
+                        </label>
+                        <input
+                          type="text"
+                          value={requestData.install_location}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              install_location: e.target.value,
+                            })
+                          }
+                          placeholder="زیرزمین، آشپزخانه، تراس"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Building className="w-4 h-4 text-indigo-500" />
+                          محل استفاده
+                        </label>
+                        <input
+                          type="text"
+                          value={requestData.usage_location}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              usage_location: e.target.value,
+                            })
+                          }
+                          placeholder="مسکونی ، تجاری، اداری"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Building className="w-4 h-4 text-indigo-500" />
+                          وضعیت ساختمان
+                        </label>
+                        <input
+                          type="text"
+                          value={requestData.construction_status}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              construction_status: e.target.value,
+                            })
+                          }
+                          placeholder="نوساز، قدیمی"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
+                    >
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Building className="w-4 h-4 text-indigo-500" />
+                          مساحت ساختمان
+                        </label>
+                        <input
+                          style={{ direction: "ltr" }}
+                          type="number"
+                          value={requestData.building_area}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              building_area: e.target.value,
+                            })
+                          }
+                          onKeyDown={preventArrowKeyChange}
+                          placeholder="مساحت ساختمان"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 no-spinner"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Settings className="w-4 h-4 text-indigo-500" />
+                          نوع نصب
+                        </label>
+                        <Select
+                          options={install_as_options}
+                          value={install_as_options.find(
+                            (option) => option.value == requestData.install_as
+                          )}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              install_as: e.value,
+                            })
+                          }
+                          styles={{
+                            ...customSelectStyles,
+                            control: (provided, state) => ({
+                              ...provided,
+                              minHeight: "48px",
+                              borderRadius: "12px",
+                              borderColor: state.isFocused
+                                ? "#6366F1"
+                                : "#E5E7EB",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(99, 102, 241, 0.1)"
+                                : "none",
+                              "&:hover": {
+                                borderColor: "#6366F1",
+                              },
+                            }),
+                          }}
+                          placeholder="نوع نصب"
+                          menuPortalTarget={
+                            typeof document !== "undefined"
+                              ? document.body
+                              : null
+                          }
+                          menuPosition="fixed"
+                        />
+                      </div>
                     </div>
                   </div>
+                </CollapsibleSection>
 
-                  <div className="space-y-6">
+                <CollapsibleSection
+                  title="اطلاعات مکانی"
+                  icon={MapPin}
+                  description="موقعیت و آدرس دقیق را مشخص کنید"
+                  isExpanded={isMobile ? expandedSections.location : true}
+                  onToggle={() => toggleSection("location")}
+                  isMobile={isMobile}
+                  gradient="from-green-500 to-green-600"
+                >
+                  <div className={`${isMobile ? "space-y-5" : "space-y-6"}`}>
                     <div className="space-y-3">
-                      <label className="block text-sm font-semibold text-neutral-700">
-                        انتخاب موقعیت <span className="text-error-500">*</span>
+                      <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-green-500" />
+                        انتخاب موقعیت <span className="text-red-500">*</span>
                       </label>
                       <div className="h-80 w-full rounded-xl overflow-hidden border-2 border-neutral-200 bg-neutral-50 shadow-inner">
                         <SelectLocation
@@ -811,14 +1398,32 @@ const AddRequest = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <label
-                        htmlFor="address"
-                        className="block text-sm font-semibold text-neutral-700"
-                      >
-                        آدرس <span className="text-error-500">*</span>
+                      <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-green-500" />
+                        کد پستی
+                      </label>
+                      <input
+                        style={{ direction: "ltr" }}
+                        type="text"
+                        value={requestData.postal_code}
+                        onChange={(e) =>
+                          setRequestData({
+                            ...requestData,
+                            postal_code: e.target.value,
+                          })
+                        }
+                        maxLength={10}
+                        placeholder="کد پستی"
+                        className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <Home className="w-4 h-4 text-green-500" />
+                        آدرس <span className="text-red-500">*</span>
                       </label>
                       <textarea
-                        id="address"
                         rows="4"
                         value={requestData.address}
                         onChange={(e) =>
@@ -827,17 +1432,16 @@ const AddRequest = () => {
                             address: e.target.value,
                           })
                         }
-                        className="block w-full px-4 py-3 text-sm text-neutral-700 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 hover:border-neutral-300 resize-none shadow-sm"
+                        className="w-full px-4 py-3.5 text-sm text-neutral-700 bg-white border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 hover:border-neutral-300 resize-none shadow-sm"
                         placeholder="آدرس کامل را وارد کنید..."
                         required
                       />
                     </div>
                   </div>
-                </motion.div>
+                </CollapsibleSection>
               </div>
             </div>
 
-            {/* Submit Button */}
             <motion.div
               className="mt-12 pt-8 border-t border-neutral-200"
               initial={{ opacity: 0, y: 20 }}
@@ -848,10 +1452,10 @@ const AddRequest = () => {
                 onClick={handleSubmit}
                 disabled={!validateForm()}
                 type="submit"
-                className={`w-full px-8 py-4 text-lg font-semibold text-white rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-4 focus:ring-success-200 shadow-lg ${
+                className={`w-full px-8 py-4 text-lg font-semibold text-white rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-4 focus:ring-green-200 shadow-lg ${
                   !validateForm()
                     ? "bg-neutral-300 cursor-not-allowed"
-                    : "bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 hover:shadow-xl"
+                    : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:shadow-xl"
                 }`}
               >
                 {isUpdating ? (
