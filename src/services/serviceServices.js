@@ -41,3 +41,14 @@ export function getParts(data) {
     ...data,
   });
 }
+
+// get today quote
+export function getTodayQuote(token) {
+  return http.post("", {
+    token: token,
+    class_name: "quotes",
+    cnt_group: "service",
+    function_name: "get_today",
+    type: "user",
+  });
+}

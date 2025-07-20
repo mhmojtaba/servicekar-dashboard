@@ -97,9 +97,7 @@ const AboutUs = () => {
                     <span className="text-2xl">📧</span>
                     <div>
                       <p className="font-semibold">ایمیل</p>
-                      <p className="text-gray-600 ltr" dir="ltr">
-                        info@homeservice.ir
-                      </p>
+                      <p className="text-gray-600 ltr">info@gjzari.ir</p>
                     </div>
                   </div>
                 </div>
@@ -117,8 +115,7 @@ const AboutUs = () => {
                     <div>
                       <p className="font-semibold">آدرس</p>
                       <p className="text-gray-600 leading-relaxed">
-                        تهران، خیابان ولیعصر، بالاتر از چهارراه ولیعصر، پلاک
-                        ۱۲۳، واحد ۴۵
+                        اصفهان، اتوبان چمران، جنب کوچه51، پلاک ۱۲۳
                       </p>
                     </div>
                   </div>

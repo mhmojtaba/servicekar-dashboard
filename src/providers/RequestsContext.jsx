@@ -9,6 +9,7 @@ import {
   getReviews,
   getDataWithMobile,
   getByBarcode,
+  getInvoiceData,
 } from "@/services/requestsServices";
 import { toast } from "react-toastify";
 
@@ -35,6 +36,9 @@ export const RequestsProvider = ({ children }) => {
   const [suggestedAddresses, setSuggestedAddresses] = useState([]);
   const [reasonBlock, setReasonBlock] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
+
+  const [invoiceData, setInvoiceData] = useState([]);
+  const [invoiceItems, setInvoiceItems] = useState([]);
 
   const { isPending: isGettingRequest, mutateAsync: mutateGetRequests } =
     useMutation({
@@ -71,6 +75,30 @@ export const RequestsProvider = ({ children }) => {
   } = useMutation({
     mutationFn: getByBarcode,
   });
+
+  const { isPending: isGettingInvoiceData, mutateAsync: mutateGetInvoiceData } =
+    useMutation({
+      mutationFn: getInvoiceData,
+    });
+
+  const fetchInvoiceData = async (order_id) => {
+    try {
+      const data = {
+        token,
+        order_id,
+      };
+      const { data: response } = await mutateGetInvoiceData(data);
+      if (response?.msg === 0) {
+        setInvoiceData(response?.order);
+        setInvoiceItems(response?.items);
+      } else {
+        toast.error(response?.msg_text);
+      }
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getDeviceWithBarcode = async (barcode) => {
     try {
@@ -229,6 +257,10 @@ export const RequestsProvider = ({ children }) => {
         brands,
         brand_models,
         getDeviceWithBarcode,
+        fetchInvoiceData,
+        invoiceData,
+        invoiceItems,
+        isGettingInvoiceData,
       }}
     >
       {children}

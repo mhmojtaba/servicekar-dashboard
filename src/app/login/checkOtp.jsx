@@ -137,9 +137,7 @@ function OTPInput({
           type="submit"
           variant={checkOtpTimer > 0 ? "secondary" : "primary"}
           children={
-            checkOtpTimer > 0
-              ? `${checkOtpTimer} ثانیه تا تلاش مجدد`
-              : "ورود به سرویس کار"
+            checkOtpTimer > 0 ? `${checkOtpTimer} ثانیه تا تلاش مجدد` : "ورود"
           }
           isLoading={isChecking}
           valid={otpValues.join("").length === numInputs && checkOtpTimer === 0}

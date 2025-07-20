@@ -198,6 +198,7 @@ const AddRequest = () => {
     install_as: "",
     building_area: "",
     postal_code: "",
+    recommender_mobile: "",
   });
 
   const [location, setLocation] = useState([32.644397, 51.667455]);
@@ -456,6 +457,8 @@ const AddRequest = () => {
     return valid;
   };
 
+  console.log("requestData", requestData);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
@@ -466,7 +469,7 @@ const AddRequest = () => {
           </div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:pt-10 lg:pb-20">
           <motion.div
             className="text-center text-white"
             initial={{ opacity: 0, y: -30 }}
@@ -474,7 +477,7 @@ const AddRequest = () => {
             transition={{ duration: 0.8 }}
           >
             <motion.div
-              className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-8 shadow-2xl"
+              className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-3xl mb-8 shadow-2xl"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -483,7 +486,7 @@ const AddRequest = () => {
             </motion.div>
 
             <motion.h1
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+              className="text-4xl md:text-5xl lg:text-3xl font-bold mb-6 leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -492,26 +495,13 @@ const AddRequest = () => {
             </motion.h1>
 
             <motion.p
-              className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed"
+              className="text-base md:text-lg text-white/90 max-w-3xl mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              اطلاعات خود را با دقت وارد کنید تا درخواست شما به بهترین شکل ثبت
-              شود
+              فرم زیر را تکمیل کرده و درخواست خود را ثبت کنید
             </motion.p>
-
-            <motion.div
-              className="mt-8 flex items-center justify-center gap-2 text-white/70"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">
-                فرم هوشمند و کاربرپسند
-              </span>
-            </motion.div>
           </motion.div>
         </div>
       </div>
@@ -542,7 +532,7 @@ const AddRequest = () => {
                       className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
                     >
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <User className="w-4 h-4 text-blue-500" />
                           نام <span className="text-red-500">*</span>
                         </label>
@@ -562,7 +552,7 @@ const AddRequest = () => {
                       </div>
 
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <User className="w-4 h-4 text-blue-500" />
                           نام خانوادگی <span className="text-red-500">*</span>
                         </label>
@@ -586,7 +576,7 @@ const AddRequest = () => {
                       className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
                     >
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <Phone className="w-4 h-4 text-green-500" />
                           شماره موبایل <span className="text-red-500">*</span>
                         </label>
@@ -621,7 +611,7 @@ const AddRequest = () => {
                         )}
                       </div>
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <Phone className="w-4 h-4 text-purple-500" />
                           تلفن ثابت
                         </label>
@@ -644,7 +634,7 @@ const AddRequest = () => {
                       className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
                     >
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <FileText className="w-4 h-4 text-orange-500" />
                           کد ملی
                         </label>
@@ -661,13 +651,13 @@ const AddRequest = () => {
                               national_id: value,
                             });
                           }}
-                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 placeholder:text-right"
                           placeholder="کد ملی"
                           maxLength={10}
                         />
                       </div>
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-indigo-500" />
                           تاریخ تولد
                         </label>
@@ -686,11 +676,36 @@ const AddRequest = () => {
                             containerClassName="w-full"
                             style={{ direction: "ltr" }}
                             format="YYYY/MM/DD"
-                            placeholder="انتخاب تاریخ تولد"
-                            inputClass="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 z-10"
+                            placeholder="تاریخ تولد"
+                            inputClass="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 z-10 placeholder:text-right"
                             calendarPosition="bottom-start"
+                            calendarClassName="z-[9999]"
+                            portalClassName="z-[9999]"
+                            portal={true}
                           />
                         </div>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          شماره موبایل معرف
+                        </label>
+                        <input
+                          type="tel"
+                          style={{ direction: "ltr" }}
+                          value={requestData.recommender_mobile}
+                          onChange={(e) => {
+                            const value = e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 11);
+                            setRequestData({
+                              ...requestData,
+                              recommender_mobile: value,
+                            });
+                          }}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all`}
+                          placeholder="09xxxxxxxxx"
+                          maxLength={11}
+                        />
                       </div>
                     </div>
                   </div>
@@ -836,7 +851,7 @@ const AddRequest = () => {
                       className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
                     >
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <Package className="w-4 h-4 text-purple-500" />
                           نام سرویس <span className="text-red-500">*</span>
                         </label>
@@ -875,7 +890,7 @@ const AddRequest = () => {
                       </div>
 
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <User className="w-4 h-4 text-purple-500" />
                           درخواست کننده <span className="text-red-500">*</span>
                         </label>
@@ -924,7 +939,7 @@ const AddRequest = () => {
                       className={`grid grid-cols-1 ${isMobile ? "gap-5" : "lg:grid-cols-2 gap-6"}`}
                     >
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <Package className="w-4 h-4 text-purple-500" />
                           نام برند
                         </label>
@@ -963,7 +978,7 @@ const AddRequest = () => {
                       </div>
 
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <Package className="w-4 h-4 text-purple-500" />
                           نام مدل
                         </label>
@@ -1013,7 +1028,7 @@ const AddRequest = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <label className="block text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                      <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                         <Settings className="w-4 h-4 text-purple-500" />
                         نوع سرویس <span className="text-red-500">*</span>
                       </label>
@@ -1165,8 +1180,51 @@ const AddRequest = () => {
                           style={{ direction: "ltr" }}
                           format="YYYY/MM/DD"
                           placeholder="انتخاب تاریخ نصب"
-                          inputClass="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 z-10"
+                          inputClass="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 z-10 placeholder:text-right"
                           calendarPosition="bottom-start"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                          <Settings className="w-4 h-4 text-indigo-500" />
+                          نوع نصب
+                        </label>
+                        <Select
+                          options={install_as_options}
+                          value={install_as_options.find(
+                            (option) => option.value == requestData.install_as
+                          )}
+                          onChange={(e) =>
+                            setRequestData({
+                              ...requestData,
+                              install_as: e.value,
+                            })
+                          }
+                          styles={{
+                            ...customSelectStyles,
+                            control: (provided, state) => ({
+                              ...provided,
+                              minHeight: "48px",
+                              borderRadius: "12px",
+                              borderColor: state.isFocused
+                                ? "#6366F1"
+                                : "#E5E7EB",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(99, 102, 241, 0.1)"
+                                : "none",
+                              "&:hover": {
+                                borderColor: "#6366F1",
+                              },
+                            }),
+                          }}
+                          placeholder="نوع نصب"
+                          menuPortalTarget={
+                            typeof document !== "undefined"
+                              ? document.body
+                              : null
+                          }
+                          menuPosition="fixed"
                         />
                       </div>
                     </div>
@@ -1210,7 +1268,7 @@ const AddRequest = () => {
                             })
                           }
                           placeholder="شماره سریال تولید کننده"
-                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 placeholder:text-right"
                         />
                       </div>
                     </div>
@@ -1234,7 +1292,7 @@ const AddRequest = () => {
                             })
                           }
                           placeholder="کد پذیرش تولید کننده"
-                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 placeholder:text-right"
                         />
                       </div>
 
@@ -1320,50 +1378,7 @@ const AddRequest = () => {
                           }
                           onKeyDown={preventArrowKeyChange}
                           placeholder="مساحت ساختمان"
-                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 no-spinner"
-                        />
-                      </div>
-
-                      <div className="space-y-3">
-                        <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-                          <Settings className="w-4 h-4 text-indigo-500" />
-                          نوع نصب
-                        </label>
-                        <Select
-                          options={install_as_options}
-                          value={install_as_options.find(
-                            (option) => option.value == requestData.install_as
-                          )}
-                          onChange={(e) =>
-                            setRequestData({
-                              ...requestData,
-                              install_as: e.value,
-                            })
-                          }
-                          styles={{
-                            ...customSelectStyles,
-                            control: (provided, state) => ({
-                              ...provided,
-                              minHeight: "48px",
-                              borderRadius: "12px",
-                              borderColor: state.isFocused
-                                ? "#6366F1"
-                                : "#E5E7EB",
-                              boxShadow: state.isFocused
-                                ? "0 0 0 2px rgba(99, 102, 241, 0.1)"
-                                : "none",
-                              "&:hover": {
-                                borderColor: "#6366F1",
-                              },
-                            }),
-                          }}
-                          placeholder="نوع نصب"
-                          menuPortalTarget={
-                            typeof document !== "undefined"
-                              ? document.body
-                              : null
-                          }
-                          menuPosition="fixed"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 no-spinner placeholder:text-right"
                         />
                       </div>
                     </div>
@@ -1414,7 +1429,7 @@ const AddRequest = () => {
                         }
                         maxLength={10}
                         placeholder="کد پستی"
-                        className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                        className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 placeholder:text-right"
                       />
                     </div>
 

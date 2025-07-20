@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -17,7 +17,7 @@ import {
 import { getRequestDataWithBarcode } from "@/services/requestsServices";
 import RequestCard from "../dashboard/components/RequestCard";
 
-const BarcodePage = () => {
+const BarcodePageContent = () => {
   const [request, setRequest] = useState(null);
   const [isError, setIsError] = useState(false);
 
@@ -261,6 +261,38 @@ const BarcodePage = () => {
         </motion.div>
       </div>
     </div>
+  );
+};
+
+const BarcodePageLoading = () => (
+  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-white rounded-3xl shadow-2xl border border-neutral-200 p-8 max-w-md w-full mx-4"
+    >
+      <div className="text-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-6 shadow-lg"
+        >
+          <Loader2 className="w-8 h-8 text-white" />
+        </motion.div>
+        <h2 className="text-2xl font-bold text-neutral-800 mb-3">
+          در حال بارگذاری...
+        </h2>
+        <p className="text-neutral-600">لطفاً صبر کنید...</p>
+      </div>
+    </motion.div>
+  </div>
+);
+
+const BarcodePage = () => {
+  return (
+    <Suspense fallback={<BarcodePageLoading />}>
+      <BarcodePageContent />
+    </Suspense>
   );
 };
 

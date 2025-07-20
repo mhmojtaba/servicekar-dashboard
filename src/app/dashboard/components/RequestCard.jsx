@@ -140,8 +140,9 @@ export default function RequestCard({
 
   const isInvoiceCompleted = checkIfInvoiceCompleted(request);
 
-  const shouldShowCancelButton = request.status != 2 && request.status != 8;
-  const completedRequest = request.status == 8;
+  const shouldShowCancelButton =
+    request.status != 2 && request.status != 8 && request.status != 9;
+  const completedRequest = request.status == 8 || request.status == 9;
   const canceledRequest = request.status == 2;
 
   return (

@@ -148,12 +148,14 @@ const LoginContent = () => {
                   src={logo}
                   width={100}
                   height={100}
-                  alt="اصفهان سرویس کار"
+                  alt="شرکت خدمات گستر جزایری"
                   className="rounded-full object-cover"
                 />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-white">اصفهان سرویس کار</h1>
+            <h1 className="text-2xl font-bold text-white">
+              شرکت خدمات گستر جزایری
+            </h1>
           </div>
 
           <div className="p-8">
@@ -235,8 +237,8 @@ const LoginContent = () => {
 
           <div className="bg-gray-50 py-4 px-8 text-center border-t border-gray-100">
             <p className="text-gray-500 text-xs">
-              © {new Date().getFullYear()} اصفهان سرویس کار - تمامی حقوق محفوظ
-              است
+              © {new Date().getFullYear()} شرکت خدمات گستر جزایری - تمامی حقوق
+              محفوظ است
             </p>
           </div>
         </div>
@@ -259,7 +261,7 @@ const LoginPage = () => {
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold text-white">
-                  اصفهان سرویس کار
+                  شرکت خدمات گستر جزایری
                 </h1>
               </div>
               <div className="p-8">

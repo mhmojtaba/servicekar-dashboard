@@ -19,10 +19,10 @@ const SendOtp = ({
           </div>
 
           <h2 className="text-2xl font-bold text-neutral-800 mb-3">
-            ورود به سرویس کار
+            ورود به سامانه
           </h2>
           <p className="text-neutral-500 text-sm">
-            برای ورود به اصفهان سرویس کار، شماره موبایل خود را وارد کنید
+            برای ورود به سامانه، شماره موبایل خود را وارد کنید
           </p>
         </div>
         <div className="mb-6">
@@ -75,19 +75,6 @@ const SendOtp = ({
           }
           isLoading={isLoading}
         />
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-neutral-500">
-            با ورود به سیستم، شما
-            <a
-              href="#"
-              className="text-primary-600 hover:text-primary-700 mx-1 font-medium"
-            >
-              شرایط و قوانین
-            </a>{" "}
-            استفاده از سرویس کار را می‌پذیرید
-          </p>
-        </div>
       </form>
     </div>
   );

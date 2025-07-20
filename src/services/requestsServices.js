@@ -115,3 +115,14 @@ export function getRequestDataWithBarcode(barcode) {
     barcode: barcode,
   });
 }
+
+export function getInvoiceData(data) {
+  return http.post("", {
+    token: data.token,
+    class_name: "requests",
+    cnt_group: "service",
+    function_name: "get_invoice_details",
+    order_id: data.order_id,
+    type: "user",
+  });
+}
