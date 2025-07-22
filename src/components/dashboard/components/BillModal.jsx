@@ -169,7 +169,7 @@ const BillModal = ({ onClose }) => {
                     )}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <Wrench className="w-4 h-4 text-neutral-500" />
                   <span className="text-sm text-neutral-600">
                     تعداد دستگاه:
@@ -177,7 +177,7 @@ const BillModal = ({ onClose }) => {
                   <span className="font-medium">
                     {invoiceData.device_count}
                   </span>
-                </div>
+                </div> */}
               </div>
             </div>
 

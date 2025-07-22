@@ -248,7 +248,11 @@ const AddRequest = () => {
     const checkMobileStatus = async () => {
       if (requestData.mobile && errors.mobile === false) {
         try {
-          const res = await fetchDataWithMobile(requestData.mobile);
+          const data = {
+            mobile: requestData.mobile,
+            id_service: requestData.id_service,
+          };
+          const res = await fetchDataWithMobile(data);
           if (res?.msg === 2) {
             setIsBlocked(true);
           } else {
@@ -293,14 +297,59 @@ const AddRequest = () => {
         first_name: selectedAddress.first_name,
         last_name: selectedAddress.last_name,
         address: selectedAddress.address,
+        postal_code: selectedAddress.postal_code,
+        mobile: selectedAddress.mobile,
+        national_id: selectedAddress.national_id,
+        birth_date: selectedAddress.birth_date,
+        phone: selectedAddress.phone,
+        img: selectedAddress.img,
+        install_date: selectedAddress.install_date,
+        manufacturer_serial: selectedAddress.manufacturer_serial,
+        manufacturer_acceptance_code:
+          selectedAddress.manufacturer_acceptance_code,
+        barcode: selectedAddress.barcode,
+        brand_id: selectedAddress.brand_id,
+        model_id: selectedAddress.model_id,
+        install_location: selectedAddress.install_location,
+        usage_location: selectedAddress.usage_location,
+        construction_status: selectedAddress.construction_status,
+        install_as: selectedAddress.install_as,
+        building_area: selectedAddress.building_area,
+        recommender_mobile: selectedAddress.recommender_mobile,
+        id_service: selectedAddress.id_service,
+        requester_type: selectedAddress.requester_type,
+        operation_type: selectedAddress.operation_type,
       });
       setLocation([selectedAddress.latitude, selectedAddress.longitude]);
+      setImagePreview(selectedAddress.img);
     } else {
       setRequestData({
         ...requestData,
         first_name: "",
         last_name: "",
         address: "",
+        postal_code: "",
+        mobile: "",
+        national_id: "",
+        birth_date: "",
+        phone: "",
+        img: "",
+        install_date: "",
+        manufacturer_serial: "",
+        manufacturer_acceptance_code: "",
+        barcode: "",
+        brand_id: null,
+        model_id: null,
+        install_location: "",
+        usage_location: "",
+        construction_status: "",
+        install_as: "",
+        building_area: "",
+        postal_code: "",
+        recommender_mobile: "",
+        id_service: null,
+        requester_type: null,
+        operation_type: null,
       });
     }
   }, [selectedAddress]);

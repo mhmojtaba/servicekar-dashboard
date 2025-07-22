@@ -110,7 +110,7 @@ const DashboardContent = () => {
     if (result.isConfirmed) {
       if (typeof window !== "undefined") {
         localStorage.removeItem("dashboard-token");
-        localStorage.removeItem("user");
+        localStorage.removeItem("dashboard-user");
       }
 
       logout();

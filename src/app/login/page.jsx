@@ -79,7 +79,7 @@ const LoginContent = () => {
         setToken(response?.token);
         if (typeof window !== "undefined") {
           localStorage.setItem("dashboard-token", response?.token);
-          localStorage.setItem("user", JSON.stringify(userData));
+          localStorage.setItem("dashboard-user", JSON.stringify(userData));
         }
         toast.success("ورود با موفقیت انجام شد");
         navigate();

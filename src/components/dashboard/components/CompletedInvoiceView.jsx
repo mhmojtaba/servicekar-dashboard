@@ -208,11 +208,11 @@ const CompletedInvoiceView = ({ data, taskList, partList, isLoading }) => {
                 <span className="text-sm text-neutral-600">تاریخ:</span>
                 <span className="font-medium">{data.date}</span>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Wrench className="w-4 h-4 text-neutral-500" />
                 <span className="text-sm text-neutral-600">تعداد دستگاه:</span>
                 <span className="font-medium">{data.deviceCount}</span>
-              </div>
+              </div> */}
             </div>
           </div>
 

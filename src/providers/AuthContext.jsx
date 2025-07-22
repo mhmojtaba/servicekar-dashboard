@@ -7,7 +7,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     if (typeof window !== "undefined") {
-      const savedUser = localStorage.getItem("user");
+      const savedUser = localStorage.getItem("dashboard-user");
       return savedUser ? JSON.parse(savedUser) : null;
     }
     return null;
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     if (typeof window !== "undefined") {
       localStorage.removeItem("dashboard-token");
-      localStorage.removeItem("user");
+      localStorage.removeItem("dashboard-user");
     }
   };
 

@@ -193,11 +193,11 @@ export const RequestsProvider = ({ children }) => {
     }
   };
 
-  const fetchDataWithMobile = async (mobile) => {
+  const fetchDataWithMobile = async (values) => {
     try {
       const data = {
         token,
-        mobile,
+        ...values,
       };
       const { data: response } = await mutateGetDataWithMobile(data);
 

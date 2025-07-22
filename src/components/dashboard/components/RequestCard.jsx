@@ -13,6 +13,9 @@ import {
   ZoomIn,
   AlertTriangle,
   X,
+  Barcode,
+  Lock,
+  DollarSign,
 } from "lucide-react";
 
 import { useRequests } from "@/providers/RequestsContext";
@@ -108,43 +111,41 @@ export default function RequestCard({
     }
   };
 
-  const checkIfInvoiceCompleted = (request) => {
-    if (!request) return false;
+  // const checkIfInvoiceCompleted = (request) => {
+  //   if (!request) return false;
 
-    try {
-      let taskArray = [];
-      let partArray = [];
+  //   try {
+  //     let taskArray = [];
+  //     let partArray = [];
 
-      // Parse tasks
-      if (request.tasks && request.tasks !== "") {
-        taskArray =
-          typeof request.tasks === "string"
-            ? JSON.parse(request.tasks)
-            : request.tasks;
-      }
+  //     if (request.tasks && request.tasks !== "") {
+  //       taskArray =
+  //         typeof request.tasks === "string"
+  //           ? JSON.parse(request.tasks)
+  //           : request.tasks;
+  //     }
 
-      // Parse parts
-      if (request.parts && request.parts !== "") {
-        partArray =
-          typeof request.parts === "string"
-            ? JSON.parse(request.parts)
-            : request.parts;
-      }
+  //     if (request.parts && request.parts !== "") {
+  //       partArray =
+  //         typeof request.parts === "string"
+  //           ? JSON.parse(request.parts)
+  //           : request.parts;
+  //     }
 
-      return taskArray.length > 0 || partArray.length > 0;
-    } catch (error) {
-      console.error("Error checking invoice status:", error);
-      return false;
-    }
-  };
+  //     return taskArray.length > 0 || partArray.length > 0;
+  //   } catch (error) {
+  //     console.error("Error checking invoice status:", error);
+  //     return false;
+  //   }
+  // };
 
-  const isInvoiceCompleted = checkIfInvoiceCompleted(request);
+  const isInvoiceCompleted = request.status == 8;
 
   const shouldShowCancelButton =
     request.status != 2 && request.status != 8 && request.status != 9;
   const completedRequest = request.status == 8 || request.status == 9;
   const canceledRequest = request.status == 2;
-
+  console.log("request", request);
   return (
     <>
       <div
@@ -176,7 +177,7 @@ export default function RequestCard({
 
         <div className="p-4 sm:p-6">
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 flex-1">
               <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="p-2.5 bg-secondary-100 rounded-lg">
                   <User className="w-4 h-4 text-secondary-600" />
@@ -221,15 +222,13 @@ export default function RequestCard({
 
               <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="p-2.5 bg-primary-100 rounded-lg">
-                  <Calendar className="w-4 h-4 text-primary-600" />
+                  <Barcode className="w-4 h-4 text-primary-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
-                    تعداد دستگاه
+                    بارکد
                   </p>
-                  <p className="font-medium text-text">
-                    {request.device_count}
-                  </p>
+                  <p className="font-medium text-text">{request.barcode}</p>
                 </div>
               </div>
 
@@ -272,6 +271,37 @@ export default function RequestCard({
                     title={request.address}
                   >
                     {request.address}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="p-2.5 bg-primary-100 rounded-lg">
+                  <Lock className="w-4 h-4 text-primary-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
+                    کد تایید
+                  </p>
+                  <p className="font-medium text-text">
+                    {request?.code || "---"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="p-2.5 bg-primary-100 rounded-lg">
+                  <DollarSign className="w-4 h-4 text-primary-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
+                    جمع کل
+                  </p>
+                  <p className="font-medium text-text">
+                    {request?.total_price
+                      ? request?.total_price.toLocaleString()
+                      : "0"}{" "}
+                    تومان
                   </p>
                 </div>
               </div>
