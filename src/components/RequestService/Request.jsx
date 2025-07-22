@@ -423,7 +423,7 @@ const AddRequest = () => {
         });
         handleRemoveImage();
 
-        router.push("/dashboard?tab=requests");
+        router.push("/?tab=requests");
       } else {
         toast.error(res?.msg_text);
       }

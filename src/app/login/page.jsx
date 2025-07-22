@@ -78,7 +78,7 @@ const LoginContent = () => {
         setUser(userData);
         setToken(response?.token);
         if (typeof window !== "undefined") {
-          localStorage.setItem("token", response?.token);
+          localStorage.setItem("dashboard-token", response?.token);
           localStorage.setItem("user", JSON.stringify(userData));
         }
         toast.success("ورود با موفقیت انجام شد");
@@ -128,7 +128,10 @@ const LoginContent = () => {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("token")) {
+    if (
+      typeof window !== "undefined" &&
+      localStorage.getItem("dashboard-token")
+    ) {
       navigate();
     }
   }, []);

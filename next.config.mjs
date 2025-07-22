@@ -2,7 +2,7 @@
 const nextConfig = {
   trailingSlash: true,
   output: "export",
-  basePath: "/servicekar",
+  basePath: "/dashboard",
   images: {
     unoptimized: true,
   },

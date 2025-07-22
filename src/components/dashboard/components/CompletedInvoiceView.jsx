@@ -260,6 +260,11 @@ const CompletedInvoiceView = ({ data, taskList, partList, isLoading }) => {
                         </td>
                         <td className="border border-neutral-300 px-4 py-2">
                           {(t.quantity * t.price).toLocaleString()} تومان
+                          {t?.used_guarantee_reason && (
+                            <span className="text-xs text-neutral-500 mr-2">
+                              ({t?.used_guarantee_reason})
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -313,6 +318,11 @@ const CompletedInvoiceView = ({ data, taskList, partList, isLoading }) => {
                         </td>
                         <td className="border border-neutral-300 px-4 py-2">
                           {(p?.quantity * p?.price).toLocaleString()} تومان
+                          {p?.used_guarantee_reason && (
+                            <span className="text-xs text-neutral-500 mr-2">
+                              ({p?.used_guarantee_reason})
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}

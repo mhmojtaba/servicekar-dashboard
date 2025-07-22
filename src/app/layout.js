@@ -1,8 +1,8 @@
 import "./globals.css";
 import { Bounce, ToastContainer } from "react-toastify";
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+// import Header from "@/components/layout/Header";
+// import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/providers/AuthContext";
 import { RequestsProvider } from "@/providers/RequestsContext";
 import Providers from "./Providers";
@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <ServicesProvider>
               <RequestsProvider>
-                <Header />
+                {/* <Header /> */}
                 <QuoteComponent />
                 <ToastContainer
                   position="top-right"
@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
                   transition={Bounce}
                 />
                 {children}
-                <Footer />
+                {/* <Footer /> */}
               </RequestsProvider>
             </ServicesProvider>
           </AuthProvider>

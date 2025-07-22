@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { getRequestDataWithBarcode } from "@/services/requestsServices";
-import RequestCard from "../dashboard/components/RequestCard";
+import RequestCard from "@/components/dashboard/components/RequestCard";
 
 const BarcodePageContent = () => {
   const [request, setRequest] = useState(null);

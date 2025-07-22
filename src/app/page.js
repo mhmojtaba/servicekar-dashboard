@@ -1,9 +1,9 @@
-import Hero from "@/components/Hero/Hero";
+import DashboardPage from "@/components/dashboard/DashboardPage";
 
 export default function Home() {
   return (
     <div>
-      <Hero />
+      <DashboardPage />
     </div>
   );
 }

@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   const [token, setToken] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("token");
+      return localStorage.getItem("dashboard-token");
     }
     return null;
   });
@@ -29,9 +29,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (token) {
-        localStorage.setItem("token", token);
+        localStorage.setItem("dashboard-token", token);
       } else {
-        localStorage.removeItem("token");
+        localStorage.removeItem("dashboard-token");
       }
     }
   }, [token]);
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
+      localStorage.removeItem("dashboard-token");
       localStorage.removeItem("user");
     }
   };
