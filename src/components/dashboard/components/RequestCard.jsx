@@ -44,7 +44,7 @@ export default function RequestCard({
   const selectedPaymentStatus = array_type_payment.find(
     (s) => s.value == request.type_payment
   );
-  const selectedService = service.find((t) => t.id == request.id_service);
+  const selectedService = service.find((t) => t.id == request?.id_service);
   const selectedPaymenOnlineStatus = status_payment_online.find(
     (s) => s.value == request.status_payment
   );
@@ -177,7 +177,11 @@ export default function RequestCard({
 
         <div className="p-4 sm:p-6">
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 flex-1">
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 ${
+                target === "dashboard" ? "lg:grid-cols-4" : "lg:grid-cols-3"
+              } gap-4 sm:gap-6 mb-6 flex-1`}
+            >
               <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="p-2.5 bg-secondary-100 rounded-lg">
                   <User className="w-4 h-4 text-secondary-600" />
@@ -275,38 +279,42 @@ export default function RequestCard({
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                <div className="p-2.5 bg-primary-100 rounded-lg">
-                  <Lock className="w-4 h-4 text-primary-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
-                    کد تایید
-                  </p>
-                  <p className="font-medium text-text">
-                    {request?.code || "---"}
-                  </p>
-                </div>
-              </div>
+              {target === "dashboard" ? (
+                <>
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="p-2.5 bg-primary-100 rounded-lg">
+                      <Lock className="w-4 h-4 text-primary-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
+                        کد تایید
+                      </p>
+                      <p className="font-medium text-text">
+                        {request?.code || "---"}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                <div className="p-2.5 bg-primary-100 rounded-lg">
-                  <DollarSign className="w-4 h-4 text-primary-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
-                    جمع کل
-                  </p>
-                  <p className="font-medium text-text">
-                    {request?.total_price
-                      ? request?.total_price.toLocaleString()
-                      : "0"}{" "}
-                    تومان
-                  </p>
-                </div>
-              </div>
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="p-2.5 bg-primary-100 rounded-lg">
+                      <DollarSign className="w-4 h-4 text-primary-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
+                        جمع کل
+                      </p>
+                      <p className="font-medium text-text">
+                        {request?.total_price
+                          ? request?.total_price.toLocaleString()
+                          : "0"}{" "}
+                        تومان
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : null}
             </div>
-            {request.img ? (
+            {request?.img ? (
               <div className="bg-white rounded-xl border border-neutral-200 p-3 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <p className="text-xs text-neutral-500 uppercase tracking-wide mb-2">
                   عکس

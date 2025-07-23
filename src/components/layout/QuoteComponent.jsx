@@ -32,7 +32,7 @@ const QuoteComponent = () => {
     if (token) getQuotes();
   }, [token]);
 
-  if (!isOpen || !quote?.length) return null;
+  if (!isOpen || !quote) return null;
 
   return (
     <div className="absolute top-26 left-0 w-full h-fit z-10">
@@ -49,10 +49,10 @@ const QuoteComponent = () => {
                     <Loader2 className="w-5 h-5 text-white animate-spin" />
                   </div>
                 ) : quote ? (
-                  <blockquote className="text-white text-base md:text-lg font-medium leading-relaxed mb-3">
+                  <blockquote className="text-white text-base md:text-lg font-medium leading-relaxed mb-3 whitespace-pre-wrap">
                     "{quote?.text}"
                     {quote?.title ? (
-                      <cite className="text-white/70 text-xs font-normal not-italic">
+                      <cite className="text-white/70 text-xs font-normal not-italic mr-2">
                         ({quote?.title})
                       </cite>
                     ) : null}
