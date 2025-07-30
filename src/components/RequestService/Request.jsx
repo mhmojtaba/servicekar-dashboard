@@ -41,8 +41,8 @@ import {
 } from "@/utils/utils";
 import { customSelectStyles } from "@/styles/customeStyles";
 
-const SelectLocation = dynamic(
-  () => import("@/components/SelectLocation/SelectLocation"),
+const MapSection = dynamic(
+  () => import("@/components/SelectLocation/MapSection"),
   {
     loading: () => (
       <div className="flex items-center justify-center h-[250px] sm:h-[350px] md:h-[400px] bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-2xl border-2 border-dashed border-neutral-200">
@@ -154,6 +154,8 @@ const CollapsibleSection = ({
 const AddRequest = () => {
   const router = useRouter();
   const { token, user } = useAuth();
+  console.log("user", user);
+
   const {
     service,
     requester_type,
@@ -199,6 +201,7 @@ const AddRequest = () => {
     building_area: "",
     postal_code: "",
     recommender_mobile: "",
+    description: "",
   });
 
   const [location, setLocation] = useState([32.644397, 51.667455]);
@@ -243,6 +246,17 @@ const AddRequest = () => {
 
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setRequestData((prev) => ({
+        ...prev,
+        mobile: user?.mobile,
+        first_name: user?.first_name,
+        last_name: user?.last_name,
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     const checkMobileStatus = async () => {
@@ -319,17 +333,18 @@ const AddRequest = () => {
         id_service: selectedAddress.id_service,
         requester_type: selectedAddress.requester_type,
         operation_type: selectedAddress.operation_type,
+        description: selectedAddress.description,
       });
       setLocation([selectedAddress.latitude, selectedAddress.longitude]);
       setImagePreview(selectedAddress.img);
     } else {
       setRequestData({
         ...requestData,
-        first_name: "",
-        last_name: "",
+        first_name: user?.first_name || "",
+        last_name: user?.last_name || "",
         address: "",
         postal_code: "",
-        mobile: "",
+        mobile: user?.mobile || "",
         national_id: "",
         birth_date: "",
         phone: "",
@@ -350,9 +365,10 @@ const AddRequest = () => {
         id_service: null,
         requester_type: null,
         operation_type: null,
+        description: "",
       });
     }
-  }, [selectedAddress]);
+  }, [selectedAddress, user]);
 
   const brandOptions = useMemo(() => {
     if (requestData.id_service) {
@@ -458,6 +474,7 @@ const AddRequest = () => {
           first_name: "",
           last_name: "",
           img: "",
+          description: "",
         });
         setLocation([32.644397, 51.667455]);
         setErrors({
@@ -572,7 +589,10 @@ const AddRequest = () => {
                   icon={User}
                   description="اطلاعات هویتی و تماس خود را وارد کنید"
                   isExpanded={isMobile ? expandedSections.personal : true}
-                  onToggle={() => toggleSection("personal")}
+                  onToggle={(e) => {
+                    e.preventDefault();
+                    toggleSection("personal");
+                  }}
                   isMobile={isMobile}
                   gradient="from-blue-500 to-blue-600"
                 >
@@ -891,7 +911,10 @@ const AddRequest = () => {
                   icon={Settings}
                   description="جزئیات سرویس مورد نظر را مشخص کنید"
                   isExpanded={isMobile ? expandedSections.service : true}
-                  onToggle={() => toggleSection("service")}
+                  onToggle={(e) => {
+                    e.preventDefault();
+                    toggleSection("service");
+                  }}
                   isMobile={isMobile}
                   gradient="from-purple-500 to-purple-600"
                 >
@@ -1125,7 +1148,10 @@ const AddRequest = () => {
                   icon={Camera}
                   description="تصویر مرتبط با درخواست خود را آپلود کنید"
                   isExpanded={isMobile ? expandedSections.image : true}
-                  onToggle={() => toggleSection("image")}
+                  onToggle={(e) => {
+                    e.preventDefault();
+                    toggleSection("image");
+                  }}
                   isMobile={isMobile}
                   gradient="from-orange-500 to-orange-600"
                 >
@@ -1193,6 +1219,35 @@ const AddRequest = () => {
                     </div>
                   )}
                 </CollapsibleSection>
+
+                <CollapsibleSection
+                  title="توضیحات"
+                  icon={FileText}
+                  description="توضیحات مربوط به درخواست را وارد کنید"
+                  isExpanded={isMobile ? expandedSections.description : true}
+                  onToggle={(e) => {
+                    e.preventDefault();
+                    toggleSection("description");
+                  }}
+                >
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-neutral-700">
+                      توضیحات (اختیاری)
+                    </label>
+                    <textarea
+                      rows="4"
+                      value={requestData.description}
+                      onChange={(e) =>
+                        setRequestData({
+                          ...requestData,
+                          description: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-4 text-neutral-700 bg-white border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-200 resize-none placeholder:text-neutral-400 no-resize"
+                      placeholder="توضیحات مربوط به درخواست (اختیاری)"
+                    />
+                  </div>
+                </CollapsibleSection>
               </div>
 
               <div className={`${isMobile ? "space-y-6" : "space-y-10"}`}>
@@ -1200,8 +1255,11 @@ const AddRequest = () => {
                   title="اطلاعات تکمیلی"
                   icon={Building}
                   description="جزئیات اضافی درخواست را مشخص کنید"
-                  isExpanded={isMobile ? expandedSections.service : true}
-                  onToggle={() => toggleSection("service")}
+                  isExpanded={isMobile ? expandedSections.extra : true}
+                  onToggle={(e) => {
+                    e.preventDefault();
+                    toggleSection("extra");
+                  }}
                   isMobile={isMobile}
                   gradient="from-indigo-500 to-indigo-600"
                 >
@@ -1284,7 +1342,7 @@ const AddRequest = () => {
                       <div className="space-y-3">
                         <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <FileText className="w-4 h-4 text-indigo-500" />
-                          بارکد
+                          کد اشتراک
                         </label>
                         <input
                           style={{ direction: "ltr" }}
@@ -1296,8 +1354,8 @@ const AddRequest = () => {
                               barcode: e.target.value,
                             })
                           }
-                          placeholder="بارکد"
-                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300"
+                          placeholder="کد اشتراک"
+                          className="w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 placeholder:text-right"
                         />
                       </div>
 
@@ -1439,28 +1497,14 @@ const AddRequest = () => {
                   icon={MapPin}
                   description="موقعیت و آدرس دقیق را مشخص کنید"
                   isExpanded={isMobile ? expandedSections.location : true}
-                  onToggle={() => toggleSection("location")}
+                  onToggle={(e) => {
+                    e.preventDefault();
+                    toggleSection("location");
+                  }}
                   isMobile={isMobile}
                   gradient="from-green-500 to-green-600"
                 >
                   <div className={`${isMobile ? "space-y-5" : "space-y-6"}`}>
-                    <div className="space-y-3">
-                      <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-green-500" />
-                        انتخاب موقعیت <span className="text-red-500">*</span>
-                      </label>
-                      <div className="h-80 w-full rounded-xl overflow-hidden border-2 border-neutral-200 bg-neutral-50 shadow-inner">
-                        <SelectLocation
-                          location={location}
-                          setLocation={setLocation}
-                        />
-                      </div>
-                      <p className="text-xs text-neutral-500 flex items-center gap-2">
-                        <MapPin className="w-3 h-3" />
-                        موقعیت مورد نظر را روی نقشه انتخاب کنید
-                      </p>
-                    </div>
-
                     <div className="space-y-3">
                       <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                         <FileText className="w-4 h-4 text-green-500" />
@@ -1500,6 +1544,49 @@ const AddRequest = () => {
                         placeholder="آدرس کامل را وارد کنید..."
                         required
                       />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-green-500" />
+                        انتخاب موقعیت <span className="text-red-500">*</span>
+                      </label>
+                      <div className="h-80 w-full rounded-xl overflow-hidden border-2 border-neutral-200 bg-neutral-50 shadow-inner">
+                        {/* <SelectLocation
+                          location={location}
+                          setLocation={setLocation}
+                        /> */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-semibold text-neutral-700">
+                            انتخاب موقعیت{" "}
+                            <span className="text-error-500">*</span>
+                          </label>
+                          <div className="h-80 w-full rounded-xl overflow-hidden border-2 border-neutral-200 shadow-inner">
+                            {/* <SelectLocation
+                      location={location}
+                      setLocation={setLocation}
+                    /> */}
+                            <MapSection
+                              location={
+                                location.length > 0
+                                  ? { lat: location[0], lng: location[1] }
+                                  : null
+                              }
+                              onChange={(lat, lng) => {
+                                setLocation([lat, lng]);
+                              }}
+                            />
+                          </div>
+                          <p className="text-xs text-neutral-500 flex items-center">
+                            <span className="w-1 h-1 bg-neutral-400 rounded-full ml-2"></span>
+                            موقعیت مورد نظر را روی نقشه پیدا کنید
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-neutral-500 flex items-center gap-2">
+                        <MapPin className="w-3 h-3" />
+                        موقعیت مورد نظر را روی نقشه انتخاب کنید
+                      </p>
                     </div>
                   </div>
                 </CollapsibleSection>

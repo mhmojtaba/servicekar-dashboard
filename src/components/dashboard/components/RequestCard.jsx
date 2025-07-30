@@ -352,7 +352,9 @@ export default function RequestCard({
                         فاکتور
                       </button>
                     ) : null}
-                    {completedRequest || canceledRequest ? null : (
+                    {completedRequest ||
+                    canceledRequest ||
+                    request.type_payment != 3 ? null : (
                       <button
                         type="button"
                         onClick={handlePaymentLink}
