@@ -16,10 +16,14 @@ import {
 
 import { getRequestDataWithBarcode } from "@/services/requestsServices";
 import RequestCard from "@/components/dashboard/components/RequestCard";
+import { useRequests } from "@/providers/RequestsContext";
+import BillModal from "@/components/dashboard/components/BillModal";
 
 const BarcodePageContent = () => {
   const [request, setRequest] = useState(null);
   const [isError, setIsError] = useState(false);
+  const [showBillModal, setShowBillModal] = useState(false);
+  const { setSelectedRequest } = useRequests();
 
   const { isPending, mutateAsync: mutateGetRequestDataWithBarcode } =
     useMutation({
@@ -28,6 +32,11 @@ const BarcodePageContent = () => {
 
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+
+  const handleBill = (request) => {
+    setSelectedRequest(request);
+    setShowBillModal(true);
+  };
 
   useEffect(() => {
     const getRequestData = async () => {
@@ -228,6 +237,7 @@ const BarcodePageContent = () => {
                         request={requestItem}
                         index={index}
                         target="barcode"
+                        onBill={() => handleBill(requestItem)}
                       />
                     </motion.div>
                   ))}
@@ -260,6 +270,13 @@ const BarcodePageContent = () => {
           </div>
         </motion.div>
       </div>
+
+      {showBillModal && (
+        <BillModal
+          isOpen={showBillModal}
+          onClose={() => setShowBillModal(false)}
+        />
+      )}
     </div>
   );
 };

@@ -146,6 +146,7 @@ export default function RequestCard({
   const completedRequest = request.status == 8 || request.status == 9;
   const canceledRequest = request.status == 2;
   console.log("request", request);
+  console.log("target", target);
   return (
     <>
       <div
@@ -337,13 +338,12 @@ export default function RequestCard({
               </div>
             ) : null}
           </div>
-
           {target === "dashboard" ? (
             <div className="pt-6 border-t border-neutral-100">
               <div className="mb-4">
                 <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                   <div className="flex flex-wrap gap-3">
-                    {isInvoiceCompleted ? (
+                    {target === "dashboard" && isInvoiceCompleted ? (
                       <button
                         onClick={handleBill}
                         className="flex items-center justify-center gap-2 h-12 px-8 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 rounded-xl border border-neutral-200 transition-all duration-200 text-sm font-medium hover:shadow-sm"
@@ -352,6 +352,7 @@ export default function RequestCard({
                         فاکتور
                       </button>
                     ) : null}
+
                     {completedRequest ||
                     canceledRequest ||
                     request.type_payment != 3 ? null : (
@@ -390,6 +391,15 @@ export default function RequestCard({
                 </div>
               </div>
             </div>
+          ) : null}
+          {target === "barcode" ? (
+            <button
+              onClick={handleBill}
+              className="flex items-center justify-center gap-2 h-12 px-8 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 rounded-xl border border-neutral-200 transition-all duration-200 text-sm font-medium hover:shadow-sm"
+            >
+              <FileText className="w-4 h-4" />
+              فاکتور
+            </button>
           ) : null}
         </div>
 
