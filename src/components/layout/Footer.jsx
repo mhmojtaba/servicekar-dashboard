@@ -10,11 +10,11 @@ const Footer = () => {
             <div className="flex items-center gap-2">
               <Image
                 src={logo}
-                alt="شرکت خدمات گستر جزایری"
+                alt="شرکت خدمات گستر جزائری"
                 width={30}
                 height={30}
               />
-              <h3 className="text-xl font-bold">شرکت خدمات گستر جزایری</h3>
+              <h3 className="text-xl font-bold">شرکت خدمات گستر جزائری</h3>
             </div>
             <p className="text-gray-300">
               ارائه خدمات تخصصی تعمیر و نگهداری لوازم خانگی با بیش از 10 سال
@@ -43,7 +43,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; ۱۴۰۴ شرکت خدمات گستر جزایری. تمامی حقوق محفوظ است.</p>
+          <p>&copy; ۱۴۰۴ شرکت خدمات گستر جزائری. تمامی حقوق محفوظ است.</p>
         </div>
       </div>
     </footer>
