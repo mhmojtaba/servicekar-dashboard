@@ -32,6 +32,106 @@ const BillModal = ({ onClose }) => {
 
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  const handleGeneratePDF = async () => {
+    const element = targetRef.current;
+    if (!element || isGeneratingPDF) return;
+
+    setIsGeneratingPDF(true);
+
+    try {
+      // Store original styles
+      const originalStyles = {
+        width: element.style.width,
+        maxWidth: element.style.maxWidth,
+        transform: element.style.transform,
+        transformOrigin: element.style.transformOrigin,
+      };
+
+      // Apply PDF-optimized styles
+      element.style.width = "210mm";
+      element.style.maxWidth = "210mm";
+      element.style.transform = "scale(1)";
+      element.style.transformOrigin = "top left";
+
+      // Add PDF generation class
+      element.classList.add("pdf-generation-mode");
+
+      // Add temporary styles for better PDF rendering
+      const tempStyle = document.createElement("style");
+      tempStyle.id = "pdf-temp-styles";
+      tempStyle.innerHTML = `
+        .pdf-generation-mode {
+          width: 210mm !important;
+          max-width: 210mm !important;
+          font-size: 12px !important;
+        }
+        .pdf-generation-mode .grid {
+          display: grid !important;
+        }
+        .pdf-generation-mode .md\\:grid-cols-2 {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+        .pdf-generation-mode table {
+          table-layout: fixed !important;
+          width: 100% !important;
+        }
+        .pdf-generation-mode .text-xs {
+          font-size: 10px !important;
+        }
+        .pdf-generation-mode .text-sm {
+          font-size: 11px !important;
+        }
+        .pdf-generation-mode .text-lg {
+          font-size: 14px !important;
+        }
+        .pdf-generation-mode .text-xl {
+          font-size: 16px !important;
+        }
+        .pdf-generation-mode .text-2xl {
+          font-size: 18px !important;
+        }
+        .pdf-generation-mode .px-2 {
+          padding-left: 4px !important;
+          padding-right: 4px !important;
+        }
+        .pdf-generation-mode .break-words {
+          word-wrap: break-word !important;
+          word-break: break-word !important;
+        }
+        .pdf-generation-mode .block {
+          display: inline !important;
+        }
+        @media print {
+          .pdf-generation-mode {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+        }
+      `;
+      document.head.appendChild(tempStyle);
+
+      // Wait for styles to apply
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Generate PDF
+      await toPDF();
+
+      // Restore original styles
+      Object.assign(element.style, originalStyles);
+      element.classList.remove("pdf-generation-mode");
+
+      // Remove temporary styles
+      const tempStyleElement = document.getElementById("pdf-temp-styles");
+      if (tempStyleElement) {
+        document.head.removeChild(tempStyleElement);
+      }
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
   useEffect(() => {
     if (selectedRequest?.id) {
       fetchInvoiceData(selectedRequest.id);
@@ -77,7 +177,11 @@ const BillModal = ({ onClose }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm p-4"
-      onClick={handleClose}
+      onClick={(e) => {
+        if (!isGeneratingPDF && e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
     >
       <div className="bg-surface rounded-2xl shadow-hover w-full max-w-6xl mx-auto relative max-h-[95vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-neutral-200 bg-gradient-to-r from-primary-50 to-secondary-50">
@@ -96,16 +200,21 @@ const BillModal = ({ onClose }) => {
           </div>
           <button
             onClick={handleClose}
-            className="p-2 text-neutral-400 hover:text-error-500 hover:bg-error-50 rounded-xl transition-all duration-200"
+            disabled={isGeneratingPDF}
+            className={`p-2 rounded-xl transition-all duration-200 ${
+              isGeneratingPDF
+                ? "text-neutral-300 cursor-not-allowed"
+                : "text-neutral-400 hover:text-error-500 hover:bg-error-50"
+            }`}
           >
             <FaTimes size={18} />
           </button>
         </div>
 
-        <div className="p-4 border-b border-neutral-200 bg-neutral-50 hidden md:block">
+        <div className="p-4 border-b border-neutral-200 bg-neutral-50">
           <div className="flex justify-center">
             <button
-              onClick={toPDF}
+              onClick={handleGeneratePDF}
               disabled={isGeneratingPDF}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 ${
                 isGeneratingPDF
@@ -196,22 +305,29 @@ const BillModal = ({ onClose }) => {
                   خدمات ارائه شده
                 </h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border border-neutral-300">
+                  <table className="w-full table-fixed border-collapse border border-neutral-300">
+                    <colgroup>
+                      <col style={{ width: "8%" }} />
+                      <col style={{ width: "40%" }} />
+                      <col style={{ width: "10%" }} />
+                      <col style={{ width: "25%" }} />
+                      <col style={{ width: "25%" }} />
+                    </colgroup>
                     <thead>
                       <tr className="bg-neutral-50">
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           ردیف
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           عنوان خدمت
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           تعداد
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           قیمت واحد
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           قیمت کل
                         </th>
                       </tr>
@@ -219,22 +335,22 @@ const BillModal = ({ onClose }) => {
                     <tbody>
                       {tasks.map((t, index) => (
                         <tr key={t.id}>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {index + 1}
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm break-words">
                             {t?.title}
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {t?.quantity}
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {t?.unit_price?.toLocaleString()} تومان
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {t?.total_price?.toLocaleString()} تومان
                             {t?.used_guarantee_reason && (
-                              <span className="text-xs text-neutral-500 mr-1">
+                              <span className="text-xs text-neutral-500 mr-1 block sm:inline">
                                 ({t?.used_guarantee_reason})
                               </span>
                             )}
@@ -254,22 +370,29 @@ const BillModal = ({ onClose }) => {
                   قطعات استفاده شده
                 </h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border border-neutral-300">
+                  <table className="w-full table-fixed border-collapse border border-neutral-300">
+                    <colgroup>
+                      <col style={{ width: "8%" }} />
+                      <col style={{ width: "40%" }} />
+                      <col style={{ width: "10%" }} />
+                      <col style={{ width: "25%" }} />
+                      <col style={{ width: "25%" }} />
+                    </colgroup>
                     <thead>
                       <tr className="bg-neutral-50">
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           ردیف
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           نام قطعه
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           تعداد
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           قیمت واحد
                         </th>
-                        <th className="border border-neutral-300 px-4 py-2 text-right">
+                        <th className="border border-neutral-300 px-2 sm:px-4 py-2 text-right text-[8px] sm:text-sm">
                           قیمت کل
                         </th>
                       </tr>
@@ -277,22 +400,22 @@ const BillModal = ({ onClose }) => {
                     <tbody>
                       {parts.map((p, index) => (
                         <tr key={p.id}>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {index + 1}
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm break-words">
                             {p.title}
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {p?.quantity}
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {p?.unit_price.toLocaleString()} تومان
                           </td>
-                          <td className="border border-neutral-300 px-4 py-2">
+                          <td className="border border-neutral-300 px-2 sm:px-4 py-2 text-[8px] sm:text-sm">
                             {p?.total_price.toLocaleString()} تومان
                             {p?.used_guarantee_reason && (
-                              <span className="text-xs text-neutral-500 mr-1">
+                              <span className="text-xs text-neutral-500 mr-1 block sm:inline">
                                 ({p?.used_guarantee_reason})
                               </span>
                             )}
@@ -328,6 +451,11 @@ const BillModal = ({ onClose }) => {
                         className="max-h-20 mx-auto"
                       />
                     </div>
+                    {invoiceData?.confirm_message && (
+                      <div className="text-sm text-neutral-600 mt-2">
+                        {invoiceData?.confirm_message}
+                      </div>
+                    )}
                   </div>
                 ) : null}
                 <div className="bg-primary-50 rounded-lg p-4 h-fit">

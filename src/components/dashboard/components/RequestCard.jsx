@@ -145,8 +145,7 @@ export default function RequestCard({
     request.status != 2 && request.status != 8 && request.status != 9;
   const completedRequest = request.status == 8 || request.status == 9;
   const canceledRequest = request.status == 2;
-  console.log("request", request);
-  console.log("target", target);
+
   return (
     <>
       <div
@@ -248,7 +247,7 @@ export default function RequestCard({
                   <span
                     className={`inline-block px-2.5 py-1 rounded-full border text-xs font-medium ${getPaymentStatusColor(request.type_payment)}`}
                   >
-                    {selectedPaymentStatus?.label}
+                    {selectedPaymentStatus?.label || "نامشخص"}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -258,7 +257,7 @@ export default function RequestCard({
                   <span
                     className={`inline-block px-2.5 py-1 rounded-full border text-xs font-medium ${getPaymentStatusColor(request.type_payment_online)}`}
                   >
-                    {selectedPaymenOnlineStatus?.label}
+                    {selectedPaymenOnlineStatus?.label || "نامشخص"}
                   </span>
                 </div>
               </div>

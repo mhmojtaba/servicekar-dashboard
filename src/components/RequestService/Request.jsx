@@ -907,9 +907,9 @@ const AddRequest = () => {
                 )}
 
                 <CollapsibleSection
-                  title="اطلاعات سرویس"
+                  title="اطلاعات درخواست"
                   icon={Settings}
-                  description="جزئیات سرویس مورد نظر را مشخص کنید"
+                  description="جزئیات درخواست مورد نظر را مشخص کنید"
                   isExpanded={isMobile ? expandedSections.service : true}
                   onToggle={(e) => {
                     e.preventDefault();
@@ -925,7 +925,7 @@ const AddRequest = () => {
                       <div className="space-y-3">
                         <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                           <Package className="w-4 h-4 text-purple-500" />
-                          نام سرویس <span className="text-red-500">*</span>
+                          نام درخواست <span className="text-red-500">*</span>
                         </label>
                         <Select
                           options={serviceOptions}
@@ -950,7 +950,7 @@ const AddRequest = () => {
                               },
                             }),
                           }}
-                          placeholder="سرویس مورد نظر را انتخاب کنید"
+                          placeholder="درخواست مورد نظر را انتخاب کنید"
                           isSearchable
                           menuPortalTarget={
                             typeof document !== "undefined"
@@ -1102,7 +1102,7 @@ const AddRequest = () => {
                     <div className="space-y-3">
                       <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                         <Settings className="w-4 h-4 text-purple-500" />
-                        نوع سرویس <span className="text-red-500">*</span>
+                        نوع درخواست <span className="text-red-500">*</span>
                       </label>
                       <Select
                         options={operation_type}
@@ -1132,7 +1132,7 @@ const AddRequest = () => {
                             },
                           }),
                         }}
-                        placeholder="نوع سرویس را انتخاب کنید"
+                        placeholder="نوع درخواست را انتخاب کنید"
                         isSearchable
                         menuPortalTarget={
                           typeof document !== "undefined" ? document.body : null
