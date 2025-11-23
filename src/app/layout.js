@@ -1,4 +1,3 @@
-import "./globals.css";
 import { Bounce, ToastContainer } from "react-toastify";
 
 // import Header from "@/components/layout/Header";
@@ -7,7 +6,10 @@ import { AuthProvider } from "@/providers/AuthContext";
 import { RequestsProvider } from "@/providers/RequestsContext";
 import Providers from "./Providers";
 import { ServicesProvider } from "@/providers/ServicesContext";
+import PushNotificationProvider from "@/providers/PushNotificationProvider";
 // import QuoteComponent from "@/components/layout/QuoteComponent";
+
+import "./globals.css";
 
 export const metadata = {
 	title: "شرکت خدمات گستر جزائری",
@@ -59,7 +61,12 @@ export default function RootLayout({ children }) {
 									theme="light"
 									transition={Bounce}
 								/>
-								{children}
+								<PushNotificationProvider
+									BASE_URL={process.env.NEXT_PUBLIC_PUSH_NOTIFICATION_BASE_URL}
+									pushNotificationKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+								>
+									{children}
+								</PushNotificationProvider>
 								{/* <Footer /> */}
 							</RequestsProvider>
 						</ServicesProvider>

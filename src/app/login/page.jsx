@@ -74,6 +74,7 @@ const LoginContent = () => {
 					last_name: response?.value?.last_name,
 					mobile: response?.value?.mobile,
 					img: response?.value?.img,
+					id: response?.value?.id,
 					address: response?.value?.address,
 					location: {
 						lat: response?.value?.lat,
@@ -122,15 +123,47 @@ const LoginContent = () => {
 	}, [checkOtpTimer]);
 
 	const phoneNumberHandler = (e) => {
-		const target = e.target.value;
+		let input = e.target.value.trim();
+		let formattedNumber = "";
 
-		if (target === "" || (/^0\d*$/.test(target) && target.length <= 11)) {
-			setPhoneNumber(target);
-		}
-		if (target.length < 11) {
-			setError("شماره وارد شده اشتباه است!");
-		} else {
+		if (!input) {
+			setPhoneNumber("");
 			setError("");
+			return;
+		}
+
+		if (input.startsWith("+989")) {
+			const digits = input.slice(4).replace(/\D/g, "");
+			if (digits.length <= 9) {
+				formattedNumber = "09" + digits;
+				setPhoneNumber(formattedNumber);
+				setError("");
+			} else {
+				setPhoneNumber("09" + digits.slice(0, 9));
+				setError("شماره موبایل باید 11 رقم باشد");
+			}
+		} else if (input.startsWith("09")) {
+			const digits = input.slice(2).replace(/\D/g, "");
+			if (digits.length <= 9) {
+				formattedNumber = "09" + digits;
+				setPhoneNumber(formattedNumber);
+				setError("");
+			} else {
+				setPhoneNumber("09" + digits.slice(0, 9));
+				setError("شماره موبایل باید 11 رقم باشد");
+			}
+		} else if (input.startsWith("+98") && input.length < 4) {
+			setPhoneNumber(input);
+			setError("");
+		} else if (input.startsWith("+98") && !input.startsWith("+989")) {
+			setPhoneNumber(input);
+			setError("فرمت شماره موبایل صحیح نیست. از +989 استفاده کنید");
+		} else if (input.startsWith("+")) {
+			setPhoneNumber(input);
+			setError("شماره موبایل باید با 09 یا +989 شروع شود");
+		} else {
+			setPhoneNumber(input);
+			setError("شماره موبایل باید با 09 یا +989 شروع شود");
 		}
 	};
 
