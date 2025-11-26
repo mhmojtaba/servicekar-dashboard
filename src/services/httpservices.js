@@ -15,7 +15,30 @@ const getBaseUrl = () => {
 
 const app = axios.create({
 	baseURL: getBaseUrl(),
+	// baseURL: "https://gostarservices.ir/api",
 });
+
+const handleResponse = (response) => {
+	if (response?.data?.msg === 150 && typeof window !== "undefined") {
+		localStorage.removeItem("dashboard-token");
+		localStorage.removeItem("dashboard-user");
+		window.location.href = "/login";
+		return Promise.reject(response);
+	}
+	return Promise.resolve(response);
+};
+
+const handleError = (error) => {
+	if (error?.response?.data?.msg === 150 && typeof window !== "undefined") {
+		localStorage.removeItem("dashboard-token");
+		localStorage.removeItem("dashboard-user");
+		window.location.href = "/login";
+		return Promise.reject(error);
+	}
+	return Promise.reject(error);
+};
+
+app.interceptors.response.use(handleResponse, handleError);
 
 const http = {
 	get: app.get,
