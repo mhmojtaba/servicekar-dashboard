@@ -236,7 +236,7 @@ export default function RequestCard({
 								</div>
 								<div className="flex-1 min-w-0">
 									<p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
-										بارکد
+										کد اشتراک
 									</p>
 									<p className="font-medium text-text">{request.barcode}</p>
 								</div>

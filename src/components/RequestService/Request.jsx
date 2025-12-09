@@ -165,18 +165,13 @@ const AddRequest = () => {
 
 	const {
 		service,
-		requester_type,
 		operation_type,
 		addUpdateRequests,
 		isUpdating,
 		fetchDataWithMobile,
-		isGettingDataWithMobile,
-		suggestedAddresses,
 		reasonBlock,
 		setSuggestedAddresses,
-		setReasonBlock,
 		selectedAddress,
-		setSelectedAddress,
 		brands,
 		brand_models,
 		getDeviceWithBarcode,
@@ -867,6 +862,26 @@ const AddRequest = () => {
 											</div>
 
 											<div className="space-y-3">
+												<label className="block text-sm font-medium text-neutral-700 mb-2">
+													شماره موبایل معرف − کدتخفیف
+												</label>
+												<input
+													type="text"
+													style={{ direction: "ltr" }}
+													value={requestData.recommender_mobile}
+													onChange={(e) => {
+														const value = e.target.value;
+														setRequestData({
+															...requestData,
+															recommender_mobile: value,
+														});
+													}}
+													className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all placeholder:text-right`}
+													placeholder="کدتخفیف یا شماره موبایل معرف"
+												/>
+											</div>
+
+											{/*<div className="space-y-3">
 												<label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
 													<FileText className="w-4 h-4 text-indigo-500" />
 													کد اشتراک
@@ -886,7 +901,7 @@ const AddRequest = () => {
 												/>
 											</div>
 
-											{/* <div className="space-y-3">
+											 <div className="space-y-3">
 												<label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
 													<Phone className="w-4 h-4 text-purple-500" />
 													تلفن ثابت
@@ -961,25 +976,6 @@ const AddRequest = () => {
 													/>
 												</div>
 											</div> */}
-											<div className="space-y-3">
-												<label className="block text-sm font-medium text-neutral-700 mb-2">
-													شماره موبایل معرف − کدتخفیف
-												</label>
-												<input
-													type="text"
-													style={{ direction: "ltr" }}
-													value={requestData.recommender_mobile}
-													onChange={(e) => {
-														const value = e.target.value;
-														setRequestData({
-															...requestData,
-															recommender_mobile: value,
-														});
-													}}
-													className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all placeholder:text-right`}
-													placeholder="کدتخفیف یا شماره موبایل معرف"
-												/>
-											</div>
 										</div>
 									</div>
 								</CollapsibleSection>

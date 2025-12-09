@@ -1,15 +1,18 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { FileText, User, Plus } from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileText, User, Plus, Calendar } from "lucide-react";
+import { toast } from "react-toastify";
 
 import { useAuth } from "@/providers/AuthContext";
 import RequetsContents from "./components/RequetsContents";
-import Link from "next/link";
+
 import UserProfile from "./components/UserProfile";
 import AddRequest from "../RequestService/Request";
-import { toast } from "react-toastify";
+
+import logo from "@/assets/images/logo.png";
 
 const DashboardContent = () => {
 	const { user, token } = useAuth();
@@ -78,33 +81,56 @@ const DashboardContent = () => {
 						<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl"></div>
 						<div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-2xl"></div>
 
-						<div className="relative flex items-center justify-between">
-							<div className="flex items-center gap-6">
+						<div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+							<div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
 								<motion.div
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
+									initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
+									animate={{ scale: 1, opacity: 1, rotate: 0 }}
 									transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-									className="relative"
+									className="relative group"
 								>
-									<div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-2xl shadow-2xl flex items-center justify-center relative overflow-hidden">
-										<div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-										<User className="w-10 h-10 text-white relative z-10" />
-										{/* Floating particles */}
-										<div className="absolute top-2 right-2 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
-										<div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-white/40 rounded-full animate-pulse delay-700"></div>
+									<div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-2xl shadow-xl flex items-center justify-center p-3 border-2 border-blue-100 overflow-hidden">
+										<div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-50"></div>
+										<div className="absolute inset-0 bg-gradient-to-tr from-blue-400/10 via-transparent to-purple-400/10 group-hover:from-blue-400/20 group-hover:to-purple-400/20 transition-all duration-500"></div>
+
+										<div className="relative z-10 w-full h-full flex items-center justify-center">
+											<Image
+												src={logo}
+												alt="شرکت خدمات گستر جزائری"
+												width={80}
+												height={80}
+												className="object-contain w-full h-full"
+												priority
+											/>
+										</div>
+
+										<div className="absolute top-1 right-1 w-2 h-2 bg-blue-400 rounded-full opacity-60 animate-pulse"></div>
+										<div className="absolute bottom-1 left-1 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-60 animate-pulse delay-300"></div>
 									</div>
 
-									<div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-30 -z-10"></div>
+									<div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity duration-300 -z-10"></div>
 								</motion.div>
 
 								<motion.div
 									initial={{ x: -20, opacity: 0 }}
 									animate={{ x: 0, opacity: 1 }}
 									transition={{ delay: 0.3, duration: 0.6 }}
-									className="space-y-2"
+									className="flex-1 space-y-3"
 								>
-									<div className="flex items-center gap-3">
-										<h1 className="text-xl md:text-5xl font-black bg-gradient-to-r from-slate-800 via-blue-700 to-indigo-700 bg-clip-text text-transparent pb-2">
+									<div className="space-y-1">
+										<motion.h2
+											initial={{ opacity: 0, y: -10 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={{ delay: 0.4 }}
+											className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent"
+										>
+											شرکت خدمات گستر جزائری
+										</motion.h2>
+										<div className="h-0.5 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+									</div>
+
+									<div className="flex items-center gap-3 flex-wrap">
+										<h1 className="text-xl md:text-4xl font-black bg-gradient-to-r from-slate-800 via-blue-700 to-indigo-700 bg-clip-text text-transparent">
 											پنل کاربری
 										</h1>
 										<div className="flex items-center gap-1">
@@ -114,21 +140,33 @@ const DashboardContent = () => {
 										</div>
 									</div>
 
-									<p className="text-slate-600 text-sm md:text-lg  font-medium flex items-center gap-2">
+									<p className="text-slate-600 text-sm md:text-base font-medium flex items-center gap-2">
 										<span className="w-1 h-1 bg-slate-400 rounded-full"></span>
 										مدیریت هوشمند اطلاعات و درخواست‌های شما
 										<span className="text-blue-500">✨</span>
 									</p>
 
-									{/* Welcome message */}
 									<motion.div
 										initial={{ opacity: 0, y: 10 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ delay: 0.5 }}
-										className="flex items-center gap-2 text-sm text-slate-500 bg-white/40 backdrop-blur-sm rounded-full px-3 py-1 w-fit"
+										className="flex items-center gap-2 text-sm text-slate-500 bg-white/60 backdrop-blur-sm rounded-full px-4 py-1.5 w-fit border border-blue-100 shadow-sm"
 									>
 										<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-										خوش آمدید، {user?.first_name || "کاربر"} عزیز
+										<span className="font-medium">
+											خوش آمدید، {user?.first_name || "کاربر"} عزیز
+										</span>
+										<div className="flex w-fit items-center gap-1.5 px-2.5 py-1.5 bg-white/60 backdrop-blur-sm rounded-lg border border-neutral-200/50 shadow-sm">
+											<Calendar className="w-3.5 h-3.5 text-primary-600" />
+											<span className="text-xs font-medium text-neutral-700">
+												امروز:{" "}
+												{new Date().toLocaleDateString("fa-IR", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+												})}
+											</span>
+										</div>
 									</motion.div>
 								</motion.div>
 							</div>
@@ -199,9 +237,9 @@ const DashboardContent = () => {
 					whileTap={{ scale: 0.95 }}
 					className="fixed bottom-8 left-8 bg-primary-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-primary-600 transition-colors duration-200 z-10 md:hidden"
 				>
-					<Link href="/request">
+					<span onClick={() => setActiveTab("add-requests")}>
 						<Plus className="h-6 w-6" />
-					</Link>
+					</span>
 				</motion.span>
 			</motion.div>
 		</div>

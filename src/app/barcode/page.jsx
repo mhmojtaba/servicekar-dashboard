@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -19,7 +21,7 @@ import { getRequestDataWithBarcode } from "@/services/requestsServices";
 import RequestCard from "@/components/dashboard/components/RequestCard";
 import { useRequests } from "@/providers/RequestsContext";
 import BillModal from "@/components/dashboard/components/BillModal";
-import Link from "next/link";
+import logo from "@/assets/images/logo.png";
 
 const BarcodePageContent = () => {
 	const [request, setRequest] = useState(null);
@@ -87,7 +89,7 @@ const BarcodePageContent = () => {
 							در حال جستجو...
 						</h2>
 						<p className="text-neutral-600 mb-6">
-							در حال دریافت اطلاعات درخواست برای بارکد
+							در حال دریافت اطلاعات درخواست برای کد اشتراک
 						</p>
 						<div className="flex items-center justify-center gap-2 text-blue-500">
 							<Barcode className="w-5 h-5" />
@@ -121,14 +123,14 @@ const BarcodePageContent = () => {
 						</h2>
 						<p className="text-neutral-600 mb-6">
 							{!id
-								? "بارکد مورد نظر یافت نشد"
-								: "درخواستی برای این بارکد یافت نشد"}
+								? "کد اشتراک مورد نظر یافت نشد"
+								: "درخواستی برای این کد اشتراک یافت نشد"}
 						</p>
 						{id && (
 							<div className="bg-neutral-50 rounded-xl p-4 mb-6">
 								<div className="flex items-center justify-center gap-2 text-neutral-600">
 									<Barcode className="w-4 h-4" />
-									<span className="text-sm font-medium">بارکد: {id}</span>
+									<span className="text-sm font-medium">کد اشتراک: {id}</span>
 								</div>
 							</div>
 						)}
@@ -151,67 +153,85 @@ const BarcodePageContent = () => {
 			<div className="relative bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700">
 				<div className="absolute inset-0">
 					<div className="absolute inset-0 bg-gradient-to-r from-green-600/90 to-teal-600/90"></div>
-					<div className="absolute top-0 left-0 w-full h-full opacity-30">
+					<div className="absolute top-0 left-0 w-full h-full opacity-20">
 						<div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.1)_1px,transparent_0)] bg-[length:20px_20px]"></div>
 					</div>
 				</div>
 
-				<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+				<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 					<motion.div
-						className="text-center text-white"
-						initial={{ opacity: 0, y: -30 }}
+						className="flex items-center justify-between gap-4"
+						initial={{ opacity: 0, y: -20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
+						transition={{ duration: 0.5 }}
 					>
-						<motion.div
-							className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-8 shadow-2xl"
-							initial={{ scale: 0, rotate: -180 }}
-							animate={{ scale: 1, rotate: 0 }}
-							transition={{ duration: 0.6, delay: 0.2 }}
-						>
-							<Search className="w-10 h-10 text-white" />
-						</motion.div>
+						<div className="flex items-center gap-3">
+							<motion.div
+								className="relative group"
+								initial={{ scale: 0.9, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+							>
+								<div className="relative w-12 h-12 md:w-14 md:h-14 bg-white rounded-xl shadow-lg flex items-center justify-center p-2 border border-white/30 overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-br from-white/95 to-white/90"></div>
+									<div className="relative z-10 w-full h-full flex items-center justify-center">
+										<Image
+											src={logo}
+											alt="شرکت خدمات گستر جزائری"
+											width={48}
+											height={48}
+											className="object-contain w-full h-full"
+											priority
+										/>
+									</div>
+								</div>
+							</motion.div>
+							<motion.div
+								className="hidden sm:block"
+								initial={{ opacity: 0, x: -10 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ delay: 0.2 }}
+							>
+								<h2 className="text-base md:text-lg font-bold text-white">
+									شرکت خدمات گستر جزائری
+								</h2>
+							</motion.div>
+						</div>
 
-						<motion.h1
-							className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.6, delay: 0.3 }}
-						>
-							نتایج جستجو
-						</motion.h1>
-
-						<motion.div
-							className="flex items-center justify-center gap-4 text-white/90"
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.6, delay: 0.4 }}
-						>
-							<Barcode className="w-6 h-6" />
-							<span className="text-xl font-medium">بارکد: {id}</span>
-						</motion.div>
-
-						<motion.div
-							className="mt-6 flex items-center justify-center gap-2 text-white/70"
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ duration: 0.6, delay: 0.5 }}
-						>
-							<CheckCircle2 className="w-4 h-4" />
-							<span className="text-sm font-medium">
-								{request?.length || 0} درخواست یافت شد
-							</span>
-						</motion.div>
+						<div className="flex items-center gap-3">
+							<motion.div
+								className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/30"
+								initial={{ opacity: 0, x: 10 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ delay: 0.3 }}
+							>
+								<Barcode className="w-4 h-4 text-white" />
+								<span className="text-sm md:text-base font-medium text-white">
+									{id}
+								</span>
+							</motion.div>
+							<motion.div
+								className="flex items-center gap-2 text-white/90"
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ delay: 0.4 }}
+							>
+								<CheckCircle2 className="w-4 h-4" />
+								<span className="text-sm font-medium">
+									{request?.length || 0} نتیجه
+								</span>
+							</motion.div>
+						</div>
 					</motion.div>
 				</div>
 			</div>
 
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
 				<motion.div
-					className="bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden"
-					initial={{ opacity: 0, y: 30, scale: 0.95 }}
-					animate={{ opacity: 1, y: 0, scale: 1 }}
-					transition={{ duration: 0.6, delay: 0.3 }}
+					className="bg-white rounded-2xl shadow-lg border border-neutral-200 overflow-hidden"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.4, delay: 0.2 }}
 				>
 					<div className="p-6 sm:p-8 lg:p-10">
 						{request?.length > 0 ? (
@@ -280,12 +300,12 @@ const BarcodePageContent = () => {
 									درخواستی یافت نشد
 								</h3>
 								<p className="text-neutral-600 mb-6 max-w-md mx-auto">
-									برای بارکد وارد شده هیچ درخواستی در سیستم ثبت نشده است
+									برای کد اشتراک وارد شده هیچ درخواستی در سیستم ثبت نشده است
 								</p>
 								<div className="bg-neutral-50 rounded-xl p-4 max-w-sm mx-auto">
 									<div className="flex items-center justify-center gap-2 text-neutral-600">
 										<Barcode className="w-4 h-4" />
-										<span className="text-sm font-medium">بارکد: {id}</span>
+										<span className="text-sm font-medium">کد اشتراک: {id}</span>
 									</div>
 								</div>
 								<motion.div
