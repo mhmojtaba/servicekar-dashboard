@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "./AuthContext";
 import usePushNotification from "@/hooks/usePushNotification/usePushNotification";
 
 export default function PushNotificationProvider({
