@@ -10,10 +10,12 @@ import CheckOtp from "./checkOtp";
 import { checkOtp, sendOtp } from "@/services/authServices";
 import { useAuth } from "@/providers/AuthContext";
 import logo from "@/assets/images/logo.png";
+import { useDevice } from "@/libs/useDevice";
 
 const LoginContent = () => {
 	const { setUser, setToken } = useAuth();
 	const router = useRouter();
+	const device = useDevice();
 	const searchParams = useSearchParams();
 	const redirect = searchParams.get("redirect");
 	const [phoneNumber, setPhoneNumber] = useState("");
@@ -63,7 +65,11 @@ const LoginContent = () => {
 
 	const checkOTPHandler = async (otp) => {
 		try {
-			const data = { phoneNumber, otp };
+			const data = {
+				phoneNumber,
+				otp,
+				device_name: `${device.os} ${device.osVersion || ""}- ${device.browser} ${device.browserVersion || ""} - ${device.deviceType || ""} - ${device.isPWA ? "PWA" : "Web"}`,
+			};
 			const { data: response } = await mutateCheckOtp(data);
 
 			setCheckOtpTimer(5);
@@ -75,21 +81,15 @@ const LoginContent = () => {
 					mobile: response?.value?.mobile,
 					img: response?.value?.img,
 					id: response?.value?.id,
-					address: response?.value?.address,
-					location: {
-						lat: response?.value?.lat,
-						lng: response?.value?.lng,
-					},
 				};
 				setUser(userData);
-				setToken(response?.token);
-				if (typeof window !== "undefined") {
-					localStorage.setItem("dashboard-token", response?.token);
-					localStorage.setItem("dashboard-user", JSON.stringify(userData));
-				}
+
+				localStorage.setItem("dashboard-token", response?.token);
+				localStorage.setItem("dashboard-user", JSON.stringify(userData));
+
 				toast.success("ورود با موفقیت انجام شد");
 				setCheckOtpTimer(0);
-				navigate();
+				router.push("/");
 			} else if (response.msg == 2) {
 				toast.error("کد تایید اشتباه است");
 				setCheckOtpTimer(5);
@@ -101,7 +101,6 @@ const LoginContent = () => {
 			toast.error("خطایی رخ داده است");
 		}
 	};
-
 	useEffect(() => {
 		let interval;
 		if (sendOtpTimer > 0) {
