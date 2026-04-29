@@ -1,11 +1,11 @@
 self.addEventListener("push", (event) => {
-  console.log("Push event received",event);
+  console.log("Push event received", event);
   const data = event.data.json();
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: data.icon || "/icons/icon-192x192.png",
-      data: data.url || "/",
+      icon: data.icon || "/dashboard/icons/icon-192.png",
+      data: data.url || "/dashboard/",
     })
   );
 });

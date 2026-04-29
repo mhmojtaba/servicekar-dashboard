@@ -14,8 +14,8 @@ const getBaseUrl = () => {
 };
 
 const app = axios.create({
-	baseURL: getBaseUrl(),
-	// baseURL: "https://gostarservices.ir/api",
+	// baseURL: getBaseUrl(),
+	baseURL: "https://gostarservices.ir/api",
 });
 
 const handleResponse = (response) => {
