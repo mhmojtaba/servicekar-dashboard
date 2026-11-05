@@ -189,13 +189,13 @@ const LoginContent = () => {
                   src={logo}
                   width={100}
                   height={100}
-                  alt="شرکت خدمات گستر جزائری"
+                  alt="خدمات گستر جزائری"
                   className="rounded-full object-cover"
                 />
               </div>
             </div>
             <h1 className="text-2xl font-bold text-white">
-              شرکت خدمات گستر جزائری
+              خدمات گستر جزائری
             </h1>
           </div>
 
@@ -278,7 +278,7 @@ const LoginContent = () => {
 
           <div className="bg-gray-50 py-4 px-8 text-center border-t border-gray-100">
             <p className="text-gray-500 text-xs">
-              © {new Date().getFullYear()} شرکت خدمات گستر جزائری - تمامی حقوق
+              © {new Date().getFullYear()} خدمات گستر جزائری - تمامی حقوق
               محفوظ است
             </p>
           </div>
@@ -302,7 +302,7 @@ const LoginPage = () => {
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold text-white">
-                  شرکت خدمات گستر جزائری
+                  خدمات گستر جزائری
                 </h1>
               </div>
               <div className="p-8">

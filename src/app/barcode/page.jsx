@@ -177,7 +177,7 @@ const BarcodePageContent = () => {
 									<div className="relative z-10 w-full h-full flex items-center justify-center">
 										<Image
 											src={logo}
-											alt="شرکت خدمات گستر جزائری"
+											alt="خدمات گستر جزائری"
 											width={48}
 											height={48}
 											className="object-contain w-full h-full"
@@ -193,7 +193,7 @@ const BarcodePageContent = () => {
 								transition={{ delay: 0.2 }}
 							>
 								<h2 className="text-base md:text-lg font-bold text-white">
-									شرکت خدمات گستر جزائری
+									خدمات گستر جزائری
 								</h2>
 							</motion.div>
 						</div>

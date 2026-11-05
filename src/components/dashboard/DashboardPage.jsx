@@ -96,7 +96,7 @@ const DashboardContent = () => {
                     <div className="relative z-10 w-full h-full flex items-center justify-center">
                       <Image
                         src={logo}
-                        alt="شرکت خدمات گستر جزائری"
+                        alt="خدمات گستر جزائری"
                         width={80}
                         height={80}
                         className="object-contain w-full h-full"
@@ -124,7 +124,7 @@ const DashboardContent = () => {
                       transition={{ delay: 0.4 }}
                       className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent"
                     >
-                      شرکت خدمات گستر جزائری
+                      خدمات گستر جزائری
                     </motion.h2>
                     <div className="h-0.5 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
                   </div>

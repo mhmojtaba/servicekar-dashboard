@@ -252,7 +252,7 @@ const BillModal = ({ onClose }) => {
 									alt="logo"
 									className="w-10 h-14 object-cover"
 								/>
-								<p className="text-neutral-600">شرکت خدمات گستر جزائری </p>
+								<p className="text-neutral-600">خدمات گستر جزائری </p>
 							</div>
 						</div>
 

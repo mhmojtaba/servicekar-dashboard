@@ -58,14 +58,14 @@ const Header = () => {
                   src={logo}
                   width={100}
                   height={100}
-                  alt="شرکت خدمات گستر جزائری"
+                  alt="خدمات گستر جزائری"
                   className="rounded-full object-contain"
                 />
               </div>
             </div>
             <div className="text-right">
               <h1 className="text-xl font-bold text-primary-600">
-                شرکت خدمات گستر جزائری
+                خدمات گستر جزائری
               </h1>
               <p className="text-sm text-gray-600">تعمیر و نگهداری تخصصی</p>
             </div>
