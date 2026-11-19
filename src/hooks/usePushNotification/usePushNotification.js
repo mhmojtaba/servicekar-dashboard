@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import axios from "axios";
+import { withBasePath } from "@/config/deployment-config.mjs";
 
 export default function usePushNotification(
 	user,
@@ -19,7 +20,7 @@ export default function usePushNotification(
 			try {
 				// ثبت Service Worker
 				const registration = await navigator.serviceWorker.register(
-					"/user/service-worker.js"
+					withBasePath("/user/service-worker.js")
 				);
 
 				// بررسی permission

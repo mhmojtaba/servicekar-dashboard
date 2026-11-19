@@ -93,7 +93,7 @@ const Header = () => {
 
             {/* Desktop Login Section */}
             {isLoggedIn ? (
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button
                   variant="outline"
                   size="sm"
@@ -177,7 +177,7 @@ const Header = () => {
           {/* Mobile Section */}
           <div className="md:hidden">
             {isLoggedIn ? (
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button variant="outline" size="sm">
                   <User className="w-4 h-4" />
                 </Button>

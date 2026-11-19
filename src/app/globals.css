@@ -2,23 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "IRANSansXFaNum";
-  src: url("/dashboard/fonts/Farsinumerals/Webfonts/IRANSansXFaNum-Medium.woff2");
-}
-
 html,
 body {
   max-width: 100vw;
   background-color: #ffffff;
   overflow-x: hidden;
-  font-family: IRANSansXFaNum, IRANSansX !important;
+  font-family: var(--font-iransansx-fa-num), IRANSansX !important;
   scroll-behavior: smooth;
 }
 
 * {
   direction: rtl;
-  font-family: IRANSansXFaNum, IRANSansX !important;
+  font-family: var(--font-iransansx-fa-num), IRANSansX !important;
 }
 
 *,

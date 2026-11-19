@@ -4,8 +4,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: data.icon || "/dashboard/icons/icon-192.png",
-      data: data.url || "/dashboard/",
+      icon: data.icon || new URL("icons/icon-192.png", self.registration.scope).href,
+      data: data.url || self.registration.scope,
     })
   );
 });

@@ -1,28 +1,18 @@
 import axios from "axios";
-
-const getBaseUrl = () => {
-	const isBrowser = typeof window !== "undefined";
-	const apipath = "/api";
-
-	if (process.env.NODE_ENV !== "development") {
-		return isBrowser
-			? window.location.origin + apipath
-			: `http://localhost:3000${apipath}`;
-	} else {
-		return process.env.NEXT_PUBLIC_BASE_API_URL_HOST;
-	}
-};
+import {
+	API_BASE_URL_OVERRIDE,
+	withBasePath,
+} from "@/config/deployment-config.mjs";
 
 const app = axios.create({
-	// baseURL: getBaseUrl(),
-	baseURL: "https://gostarservices.ir/api",
+	baseURL: API_BASE_URL_OVERRIDE || "https://gostarservices.ir/api",
 });
 
 const handleResponse = (response) => {
 	if (response?.data?.msg === 150 && typeof window !== "undefined") {
 		localStorage.removeItem("dashboard-token");
 		localStorage.removeItem("dashboard-user");
-		window.location.href = "/login";
+		window.location.href = withBasePath("/login");
 		return Promise.reject(response);
 	}
 	return Promise.resolve(response);
@@ -32,7 +22,7 @@ const handleError = (error) => {
 	if (error?.response?.data?.msg === 150 && typeof window !== "undefined") {
 		localStorage.removeItem("dashboard-token");
 		localStorage.removeItem("dashboard-user");
-		window.location.href = "/login";
+		window.location.href = withBasePath("/login");
 		return Promise.reject(error);
 	}
 	return Promise.reject(error);
