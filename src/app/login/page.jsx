@@ -45,13 +45,8 @@ const LoginContent = () => {
     try {
       const { data } = await mutateSendOtp(phoneNumber);
 
-      if (data?.msg == -1) {
-        toast.error("شما دسترسی ورود به این پنل را ندارید");
-        setSendOtpTimer(5);
-        return;
-      } else if (data?.msg == 2) {
-        toast.error("کد تایید اشتباه است");
-        setSendOtpTimer(5);
+      if (data?.msg !== 0) {
+        toast.error(data?.msg_text || "شما دسترسی ورود به این پنل را ندارید");
         return;
       }
       setStep(2);
