@@ -49,6 +49,7 @@ export function addFile(data) {
 
   formData.append("class_name", "main");
   formData.append("function_name", "add_file");
+  formData.append("type", "user");
   formData.append("token", data.token);
   formData.append("file", data.file);
 
@@ -113,6 +114,7 @@ export function getRequestDataWithBarcode(barcode) {
     cnt_group: "service",
     function_name: "barcode_scanner_api",
     barcode: barcode,
+    type: "user",
   });
 }
 
