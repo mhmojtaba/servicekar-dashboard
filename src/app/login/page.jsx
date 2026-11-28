@@ -3,7 +3,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import SendOtp from "./sendOtp";
 import CheckOtp from "./checkOtp";

@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from "react";
 
 import { useAuth } from "./AuthContext";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { getParts, getServices, getTasks } from "@/services/serviceServices";
 
 const ServicesContext = createContext();

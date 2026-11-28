@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import {
 	Image,

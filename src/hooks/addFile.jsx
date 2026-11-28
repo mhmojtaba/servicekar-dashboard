@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { uploadFile } from "@/utils/utils";
 
 export const useFileUpload = (token) => {

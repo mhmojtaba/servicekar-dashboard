@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { SearchX } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import { useRequests } from "@/providers/RequestsContext";
 import { useAuth } from "@/providers/AuthContext";

@@ -12,7 +12,7 @@ import {
   AlertCircle,
   Router,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Swal from "sweetalert2";
 import { userUpdate } from "@/services/authServices";
 import { useAuth } from "@/providers/AuthContext";

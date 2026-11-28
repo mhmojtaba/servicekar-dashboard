@@ -20,7 +20,7 @@ import {
 
 import { useRequests } from "@/providers/RequestsContext";
 import ImagePreview from "./ImagePreview";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export default function RequestCard({
 	request,

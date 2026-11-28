@@ -1,4 +1,4 @@
-import { Bounce, ToastContainer } from "react-toastify";
+import { Toaster } from "sonner";
 import localFont from "next/font/local";
 import { withBasePath } from "@/config/deployment-config.mjs";
 
@@ -61,19 +61,7 @@ export default function RootLayout({ children }) {
 							<RequestsProvider>
 								{/* <Header /> */}
 								{/* <QuoteComponent /> */}
-								<ToastContainer
-									position="top-right"
-									autoClose={3000}
-									hideProgressBar={false}
-									newestOnTop
-									closeOnClick={false}
-									rtl
-									pauseOnFocusLoss
-									draggable
-									pauseOnHover
-									theme="light"
-									transition={Bounce}
-								/>
+								<Toaster position="top-right" duration={3000} dir="rtl" closeButton />
 								<PushNotificationProvider
 									BASE_URL={process.env.NEXT_PUBLIC_PUSH_NOTIFICATION_BASE_URL}
 									pushNotificationKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { Award, Star, User, X, MessageCircle } from "lucide-react";
 

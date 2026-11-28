@@ -11,7 +11,7 @@ import {
 	getByBarcode,
 	getInvoiceData,
 } from "@/services/requestsServices";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const RequestsContext = createContext();
 
